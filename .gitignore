@@ -21,3 +21,8 @@ CMakeFiles
 CMakeScripts
 cmake_install.cmake
 cmake_uninstall.cmake
+
+CMakeSettings.json
+CppProperties.json
+
+build/
