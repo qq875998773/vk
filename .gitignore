@@ -22,7 +22,7 @@ CMakeScripts
 cmake_install.cmake
 cmake_uninstall.cmake
 
-CMakeSettings.json
-CppProperties.json
+# Visual Studio Code
+.vscode/
 
 build/

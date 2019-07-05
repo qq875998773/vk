@@ -7,9 +7,13 @@ project ("VK")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-find_package(Vulkan REQUIRED)
+if (WIN32)
+    find_package(GLFW3 REQUIRED)
+elseif (UNIX AND NOT APPLE)
+    find_package(glfw3 REQUIRED)
+endif ()
 
-find_package(GLFW3 REQUIRED)
+find_package(Vulkan REQUIRED)
 
 # Include sub-projects.
 add_subdirectory("shaders")
