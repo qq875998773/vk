@@ -2,22 +2,9 @@
 
 #include <vulkan/vulkan.hpp>
 
-// ·µ»ØÂú×ãÄ³¸öÊôĞÔµÄ¶ÓÁĞ´ØË÷Òı.¶¨Òå½á¹¹Ìå,ÆäÖĞË÷Òı-1±íÊ¾"Î´ÕÒµ½"
-// Ö§³ÖgraphicsÃüÁîµÄµÄ¶ÓÁĞ´ØºÍÖ§³ÖpresentationÃüÁîµÄ¶ÓÁĞ´Ø¿ÉÄÜ²»ÊÇÍ¬Ò»¸ö´Ø
-struct QueueFamilyIndices
-{
-    int graphicsFamily = -1;
-    int presentFamily = -1;
-
-    bool isComplete()
-    {
-        return graphicsFamily >= 0 && presentFamily >= 0;
-    }
-};
-
-// Èç¹û½ö½öÊÇÎªÁË²âÊÔ½»»»Á´µÄÓĞĞ§ĞÔÊÇÔ¶Ô¶²»¹»µÄ,ÒòÎªËü»¹²»ÄÜºÜºÃµÄÓë´°Ìåsurface¼æÈİ
-// ´´½¨½»»»Á´Í¬ÑùÒ²ĞèÒªºÜ¶àÉèÖÃ,ËùÒÔÎÒÃÇĞèÒªÁË½âÒ»Ğ©ÓĞ¹ØÉèÖÃµÄÏ¸½Ú
-// ½»»»Á´½á¹¹ÌåÏêÏ¸ĞÅÏ¢
+// å¦‚æœä»…ä»…æ˜¯ä¸ºäº†æµ‹è¯•äº¤æ¢é“¾çš„æœ‰æ•ˆæ€§æ˜¯è¿œè¿œä¸å¤Ÿçš„,å› ä¸ºå®ƒè¿˜ä¸èƒ½å¾ˆå¥½çš„ä¸çª—ä½“surfaceå…¼å®¹
+// åˆ›å»ºäº¤æ¢é“¾åŒæ ·ä¹Ÿéœ€è¦å¾ˆå¤šè®¾ç½®,æ‰€ä»¥æˆ‘ä»¬éœ€è¦äº†è§£ä¸€äº›æœ‰å…³è®¾ç½®çš„ç»†èŠ‚
+// äº¤æ¢é“¾ç»“æ„ä½“è¯¦ç»†ä¿¡æ¯
 struct SwapChainSupportDetails
 {
     vk::SurfaceCapabilitiesKHR capabilities;
@@ -36,6 +23,7 @@ public:
 private:
     void initInstance(std::vector<const char*> const& extensions);
     void initDevice();
+    void initCommandBuffer();
 
     bool checkLayers(std::vector<char const*> const& layers, std::vector<vk::LayerProperties> const& properties);
 
@@ -46,57 +34,58 @@ private:
     vk::PhysicalDevice m_physical_device;
     vk::UniqueDevice m_device;
 
+    QueueFamilyIndices m_queue_family_indices;
+
+    vk::CommandPool m_commandPool;
+    std::vector<vk::CommandBuffer> m_commandBuffers;
+
     vk::UniqueDebugReportCallbackEXT m_debug_callback;
 
-    vk::SurfaceKHR m_surface;       // surface¾ÍÊÇVulkanÓë´°ÌåÏµÍ³µÄÁ¬½ÓÇÅÁº
+    vk::SurfaceKHR m_surface;       // surfaceå°±æ˜¯Vulkanä¸çª—ä½“ç³»ç»Ÿçš„è¿æ¥æ¡¥æ¢
 
 
-    vk::Queue m_graphicsQueue;      // »æÍ¼¶ÓÁĞ¾ä±ú
-    vk::Queue m_presentQueue;       // ÑİÊ¾¶ÓÁĞ¾ä±ú
+    vk::Queue m_graphicsQueue;      // ç»˜å›¾é˜Ÿåˆ—å¥æŸ„
+    vk::Queue m_presentQueue;       // æ¼”ç¤ºé˜Ÿåˆ—å¥æŸ„
 
-    vk::SwapchainKHR m_swapChain;               // ½»»»Á´¶ÔÏó
-    std::vector<vk::Image> m_swapChainImages;   // ½»»»Á´Í¼Ïñ, Í¼Ïñ±»½»»»Á´´´½¨,Ò²»áÔÚ½»»»Á´Ïú»ÙµÄÍ¬Ê±×Ô¶¯ÇåÀí,ËùÒÔ²»ĞèÒªÌí¼ÓÇåÀí´úÂë
-    vk::Format m_swapChainImageFormat;          // ½»»»Á´Í¼Ïñ±ä»»
-    vk::Extent2D m_swapChainExtent;             // ½»»»Á´À©Õ¹
-    std::vector<vk::ImageView> m_swapChainImageViews;       // ±£´æÍ¼ÏñÊÓÍ¼µÄ¾ä±ú¼¯
-    std::vector<vk::Framebuffer> m_swapChainFramebuffers;   // ½»»»Á´Ö¡»º³åÇø¼¯
+    vk::SwapchainKHR m_swapChain;               // äº¤æ¢é“¾å¯¹è±¡
+    std::vector<vk::Image> m_swapChainImages;   // äº¤æ¢é“¾å›¾åƒ, å›¾åƒè¢«äº¤æ¢é“¾åˆ›å»º,ä¹Ÿä¼šåœ¨äº¤æ¢é“¾é”€æ¯çš„åŒæ—¶è‡ªåŠ¨æ¸…ç†,æ‰€ä»¥ä¸éœ€è¦æ·»åŠ æ¸…ç†ä»£ç 
+    vk::Format m_swapChainImageFormat;          // äº¤æ¢é“¾å›¾åƒå˜æ¢
+    vk::Extent2D m_swapChainExtent;             // äº¤æ¢é“¾æ‰©å±•
+    std::vector<vk::ImageView> m_swapChainImageViews;       // ä¿å­˜å›¾åƒè§†å›¾çš„å¥æŸ„é›†
+    std::vector<vk::Framebuffer> m_swapChainFramebuffers;   // äº¤æ¢é“¾å¸§ç¼“å†²åŒºé›†
 
-    vk::RenderPass m_renderPass;                      // äÖÈ¾Í¨µÀ
-    vk::DescriptorSetLayout m_descriptorSetLayout;    // ÃèÊö·û¼¯²¼¾Ö
-    vk::PipelineLayout m_pipelineLayout;              // ¹ÜÏß²¼¾Ö
-    vk::Pipeline m_graphicsPipeline;                  // »æÖÆ¹ÜÏß
+    vk::RenderPass m_renderPass;                      // æ¸²æŸ“é€šé“
+    vk::DescriptorSetLayout m_descriptorSetLayout;    // æè¿°ç¬¦é›†å¸ƒå±€
+    vk::PipelineLayout m_pipelineLayout;              // ç®¡çº¿å¸ƒå±€
+    vk::Pipeline m_graphicsPipeline;                  // ç»˜åˆ¶ç®¡çº¿
 
-    vk::CommandPool m_commandPool;          // ÃüÁî³Ø
+    vk::Image m_depthImage;                 // å›¾åƒæ·±åº¦é™„ä»¶
+    vk::DeviceMemory m_depthImageMemory;    // å›¾åƒæ·±åº¦é™„ä»¶è®°å½•
+    vk::ImageView m_depthImageView;         // å›¾åƒæ·±åº¦è§†å›¾
 
-    vk::Image m_depthImage;                 // Í¼ÏñÉî¶È¸½¼ş
-    vk::DeviceMemory m_depthImageMemory;    // Í¼ÏñÉî¶È¸½¼ş¼ÇÂ¼
-    vk::ImageView m_depthImageView;         // Í¼ÏñÉî¶ÈÊÓÍ¼
-
-    vk::Image m_textureImage;               // ÎÆÀíÍ¼Æ¬
-    vk::DeviceMemory m_textureImageMemory;  // ÎÆÀíÍ¼Æ¬¼ÇÂ¼
-    vk::ImageView m_textureImageView;       // ÎÆÀíÍ¼ÏñÊÓÍ¼
-    vk::Sampler m_textureSampler;           // ÎÆÀí²ÉÑùÆ÷
+    vk::Image m_textureImage;               // çº¹ç†å›¾ç‰‡
+    vk::DeviceMemory m_textureImageMemory;  // çº¹ç†å›¾ç‰‡è®°å½•
+    vk::ImageView m_textureImageView;       // çº¹ç†å›¾åƒè§†å›¾
+    vk::Sampler m_textureSampler;           // çº¹ç†é‡‡æ ·å™¨
 
     /*
-    ÍÆ¼öÔÚµ¥¸öÄÚ´æÖĞ·ÖÅä¶à¸ö×ÊÔ´,Èç»º³åÇø,µ«ÊÇÊµ¼ÊÉÏ,Ó¦¸Ã¸ü½øÒ»²½Ï¸»¯.À´×ÔNvidiaµÄÇı¶¯³ÌĞò¿ª·¢Õß½¨Òé½«¶à¸ö»º³åÇø(¶¥µã»º³åÇø¡¢Ë÷Òı»º³åÇø)´æ´¢µ½µ¥¸öVkBufferÖĞ
-    ²¢ÔÚÖîÈçvkCmdBindVertexBuffersÖ®ÀàµÄÃüÁîÖĞÊ¹ÓÃÆ«ÒÆÁ¿
-    ÓÅµãÔÚÓÚ,ÔÚÕâÖÖÇé¿öÏÂ,Êı¾İ»á¸ü¼Ó³ä·ÖµÄÀûÓÃ»º´æ,ÒòÎªËüÃÇÅÅÁĞÔÚÒ»¿éÇøÓò.ÉõÖÁÔÚÍ¬Ò»¸öäÖÈ¾²Ù×÷ÖĞ¿ÉÒÔ¸´ÓÃÀ´×ÔÏàÍ¬ÄÚ´æ¿éµÄ¶à¸ö×ÊÔ´¿é,Ö»ÒªË¢ĞÂÊı¾İ¼´¿É
-    ¸Ã¼¼ÇÉ³ÆÎª³ÆÎªaliasing,Ò»Ğ©Vulkanº¯ÊıÓĞÃ÷È·µÄ±êÖ¾Ö¸¶¨ÕâÑù×öµÄÒâÍ¼
+    æ¨èåœ¨å•ä¸ªå†…å­˜ä¸­åˆ†é…å¤šä¸ªèµ„æº,å¦‚ç¼“å†²åŒº,ä½†æ˜¯å®é™…ä¸Š,åº”è¯¥æ›´è¿›ä¸€æ­¥ç»†åŒ–.æ¥è‡ªNvidiaçš„é©±åŠ¨ç¨‹åºå¼€å‘è€…å»ºè®®å°†å¤šä¸ªç¼“å†²åŒº(é¡¶ç‚¹ç¼“å†²åŒºã€ç´¢å¼•ç¼“å†²åŒº)å­˜å‚¨åˆ°å•ä¸ªVkBufferä¸­
+    å¹¶åœ¨è¯¸å¦‚vkCmdBindVertexBuffersä¹‹ç±»çš„å‘½ä»¤ä¸­ä½¿ç”¨åç§»é‡
+    ä¼˜ç‚¹åœ¨äº,åœ¨è¿™ç§æƒ…å†µä¸‹,æ•°æ®ä¼šæ›´åŠ å……åˆ†çš„åˆ©ç”¨ç¼“å­˜,å› ä¸ºå®ƒä»¬æ’åˆ—åœ¨ä¸€å—åŒºåŸŸ.ç”šè‡³åœ¨åŒä¸€ä¸ªæ¸²æŸ“æ“ä½œä¸­å¯ä»¥å¤ç”¨æ¥è‡ªç›¸åŒå†…å­˜å—çš„å¤šä¸ªèµ„æºå—,åªè¦åˆ·æ–°æ•°æ®å³å¯
+    è¯¥æŠ€å·§ç§°ä¸ºç§°ä¸ºaliasing,ä¸€äº›Vulkanå‡½æ•°æœ‰æ˜ç¡®çš„æ ‡å¿—æŒ‡å®šè¿™æ ·åšçš„æ„å›¾
     */
-    std::vector<uint32_t> m_indices;        // ¶¥µãË÷Òı¼¯ºÏ
-    vk::Buffer m_vertexBuffer;              // ¶¥µã»º³åÇø
-    vk::DeviceMemory m_vertexBufferMemory;  // ¶¥µã»º³åÇø¼ÇÂ¼
-    vk::Buffer m_indexBuffer;               // Ë÷Òı»º³åÇø
-    vk::DeviceMemory m_indexBufferMemory;   // Ë÷Òı»º³åÇø¼ÇÂ¼
+    std::vector<uint32_t> m_indices;        // é¡¶ç‚¹ç´¢å¼•é›†åˆ
+    vk::Buffer m_vertexBuffer;              // é¡¶ç‚¹ç¼“å†²åŒº
+    vk::DeviceMemory m_vertexBufferMemory;  // é¡¶ç‚¹ç¼“å†²åŒºè®°å½•
+    vk::Buffer m_indexBuffer;               // ç´¢å¼•ç¼“å†²åŒº
+    vk::DeviceMemory m_indexBufferMemory;   // ç´¢å¼•ç¼“å†²åŒºè®°å½•
 
-    vk::Buffer m_uniformBuffer;             // Í³Ò»»¯»º³åÇø Uniform:Ò»¸öÌØÊâÀàĞÍµÄGLSL±äÁ¿.ËüÊÇÈ«¾ÖµÄ(ÔÚÒ»¸ö×ÅÉ«Æ÷³ÌĞòÖĞÃ¿Ò»¸ö×ÅÉ«Æ÷¶¼ÄÜ¹»·ÃÎÊuniform±äÁ¿)²¢ÇÒÖ»ÄÜ±»Éè¶¨Ò»´Î.
-    vk::DeviceMemory m_uniformBufferMemory; // Í³Ò»»¯»º³åÇø¼ÇÂ¼
+    vk::Buffer m_uniformBuffer;             // ç»Ÿä¸€åŒ–ç¼“å†²åŒº Uniform:ä¸€ä¸ªç‰¹æ®Šç±»å‹çš„GLSLå˜é‡.å®ƒæ˜¯å…¨å±€çš„(åœ¨ä¸€ä¸ªç€è‰²å™¨ç¨‹åºä¸­æ¯ä¸€ä¸ªç€è‰²å™¨éƒ½èƒ½å¤Ÿè®¿é—®uniformå˜é‡)å¹¶ä¸”åªèƒ½è¢«è®¾å®šä¸€æ¬¡.
+    vk::DeviceMemory m_uniformBufferMemory; // ç»Ÿä¸€åŒ–ç¼“å†²åŒºè®°å½•
 
-    vk::DescriptorPool m_descriptorPool;    // ÃèÊö·û¼¯
-    vk::DescriptorSet m_descriptorSet;      // ÃèÊö·ûÉèÖÃ
+    vk::DescriptorPool m_descriptorPool;    // æè¿°ç¬¦é›†
+    vk::DescriptorSet m_descriptorSet;      // æè¿°ç¬¦è®¾ç½®
 
-    std::vector<vk::CommandBuffer> m_commandBuffers;    // ÃüÁî»º³åÇø¼¯
-
-    vk::Semaphore m_imageAvailableSemaphore;    // äÖÈ¾¿ªÊ¼ĞÅºÅ
-    vk::Semaphore m_renderFinishedSemaphore;    // äÖÈ¾½áÊøĞÅºÅ
+    vk::Semaphore m_imageAvailableSemaphore;    // æ¸²æŸ“å¼€å§‹ä¿¡å·
+    vk::Semaphore m_renderFinishedSemaphore;    // æ¸²æŸ“ç»“æŸä¿¡å·
 };

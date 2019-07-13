@@ -22,7 +22,7 @@ void Application::initWindow()
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    // ´´½¨´°Ìå ÉèÖÃ³ß´çºÍ±êÌâ
+    // åˆ›å»ºçª—ä½“ è®¾ç½®å°ºå¯¸å’Œæ ‡é¢˜
     m_window.reset(glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Demo", nullptr, nullptr));
 
     glfwSetWindowUserPointer(m_window.get(), this);
@@ -74,27 +74,27 @@ std::vector<const char*> Application::getGLFWExtensions()
     return extensions;
 }
 
-// ´°¿Ú³ß´ç±ä»¯
+// çª—å£å°ºå¯¸å˜åŒ–
 void Application::onWindowResized(GLFWwindow* window, int width, int height)
 {
     if (width == 0 || height == 0) return;
 
     Application* app = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window));
-    //app->recreateSwapChain(); // ÖØĞÂ´´½¨½»»»Á´
+    //app->recreateSwapChain(); // é‡æ–°åˆ›å»ºäº¤æ¢é“¾
 }
 
 #if 0
-// ¸üĞÂ´°ÌåÏÔÊ¾ Õâ¸öº¯Êı»áÔÚÃ¿Ò»Ö¡ÖĞ´´½¨ĞÂµÄ±ä»»¾ØÕóÒÔÈ·±£¼¸ºÎÍ¼ĞÎĞı×ª,ÒÆ¶¯,·ÅËõµÈ±ä»»
-// uniform»º³åÇøÊÇÈ«¾Ö»º³åÇø ÈÎºÎ½×¶ÎµÄshader¶¼¿ÉÒÔ·ÃÎÊ
+// æ›´æ–°çª—ä½“æ˜¾ç¤º è¿™ä¸ªå‡½æ•°ä¼šåœ¨æ¯ä¸€å¸§ä¸­åˆ›å»ºæ–°çš„å˜æ¢çŸ©é˜µä»¥ç¡®ä¿å‡ ä½•å›¾å½¢æ—‹è½¬,ç§»åŠ¨,æ”¾ç¼©ç­‰å˜æ¢
+// uniformç¼“å†²åŒºæ˜¯å…¨å±€ç¼“å†²åŒº ä»»ä½•é˜¶æ®µçš„shaderéƒ½å¯ä»¥è®¿é—®
 void Application::updateUniformBuffer()
 {
-    // ³õÊ¼»¯ÉãÏñ»ú
-    static glm::vec3 position = glm::vec3(2.0f, 2.f, 2.f);  // ³õÊ¼ÉãÏñ»úÎ»ÖÃ
-    static glm::vec3 centre = glm::vec3(0.0f, 0.0f, 0.0f);  // Ä£ĞÍÖĞĞÄ
+    // åˆå§‹åŒ–æ‘„åƒæœº
+    static glm::vec3 position = glm::vec3(2.0f, 2.f, 2.f);  // åˆå§‹æ‘„åƒæœºä½ç½®
+    static glm::vec3 centre = glm::vec3(0.0f, 0.0f, 0.0f);  // æ¨¡å‹ä¸­å¿ƒ
     float FoV = 45.0f;
-    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);// Ñö½Ç
+    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);// ä»°è§’
 
-    // Êó±ê¼üÅÌ²Ù×÷
+    // é¼ æ ‡é”®ç›˜æ“ä½œ
     glfwSetWindowUserPointer(window, this);
     glfwSetMouseButtonCallback(window, OnMouseButton);
     glfwSetCursorPosCallback(window, OnMouseMove);
@@ -108,34 +108,34 @@ void Application::updateUniformBuffer()
     position = glm::vec3(position.x, position.y * std::cos(-speed * i_ypos) - position.z * std::sin(-speed * i_ypos), position.y * std::sin(-speed * i_ypos) + position.z * std::cos(-speed * i_ypos));
 
     UniformBufferObject ubo = {};
-    ubo.view = glm::lookAt(position, centre, up); // ÉãÏñ»úÎ»ÖÃ/ÖĞĞÄÎ»ÖÃ/ÉÏÏÂÑö½Ç
-    // Ñ¡ÔñÊ¹ÓÃFOVÎª45¶ÈµÄÍ¸ÊÓÍ¶Ó°.ÆäËû²ÎÊıÊÇ¿í¸ß±È,½ü²Ã¼ôÃæºÍÔ¶²Ã¼ôÃæ.ÖØÒªµÄÊÇÊ¹ÓÃµ±Ç°µÄ½»»»Á´À©Õ¹À´¼ÆËã¿í¸ß±È,ÒÔ±ãÔÚ´°Ìåµ÷Õû´óĞ¡ºó²Î¿¼×îĞÂµÄ´°Ìå¿í¶ÈºÍ¸ß¶È.
+    ubo.view = glm::lookAt(position, centre, up); // æ‘„åƒæœºä½ç½®/ä¸­å¿ƒä½ç½®/ä¸Šä¸‹ä»°è§’
+    // é€‰æ‹©ä½¿ç”¨FOVä¸º45åº¦çš„é€è§†æŠ•å½±.å…¶ä»–å‚æ•°æ˜¯å®½é«˜æ¯”,è¿‘è£å‰ªé¢å’Œè¿œè£å‰ªé¢.é‡è¦çš„æ˜¯ä½¿ç”¨å½“å‰çš„äº¤æ¢é“¾æ‰©å±•æ¥è®¡ç®—å®½é«˜æ¯”,ä»¥ä¾¿åœ¨çª—ä½“è°ƒæ•´å¤§å°åå‚è€ƒæœ€æ–°çš„çª—ä½“å®½åº¦å’Œé«˜åº¦.
     ubo.proj = glm::perspective(glm::radians(FoV), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
-    ubo.proj[1][1] *= -1; // GLM×î³õÊÇÎªOpenGLÉè¼ÆµÄ,ËüµÄ²Ã¼ô×ø±êµÄYÊÇ·´×ªµÄ.ĞŞÕı¸ÃÎÊÌâµÄ×î¼òµ¥µÄ·½·¨ÊÇÔÚÍ¶Ó°¾ØÕóÖĞYÖáµÄËõ·ÅÒò×Ó·´×ª.Èç¹û²»ÕâÑù×öÍ¼Ïñ»á±»µ¹ÖÃ.
+    ubo.proj[1][1] *= -1; // GLMæœ€åˆæ˜¯ä¸ºOpenGLè®¾è®¡çš„,å®ƒçš„è£å‰ªåæ ‡çš„Yæ˜¯åè½¬çš„.ä¿®æ­£è¯¥é—®é¢˜çš„æœ€ç®€å•çš„æ–¹æ³•æ˜¯åœ¨æŠ•å½±çŸ©é˜µä¸­Yè½´çš„ç¼©æ”¾å› å­åè½¬.å¦‚æœä¸è¿™æ ·åšå›¾åƒä¼šè¢«å€’ç½®.
 
-    // ¼ÓÒ»¸ö²âÊÔÓÃµÄµã¹â
+    // åŠ ä¸€ä¸ªæµ‹è¯•ç”¨çš„ç‚¹å…‰
     ubo.testlight = glm::vec3(10.f, 10.f, 10.f);
 
-    // ÏÖÔÚ¶¨ÒåÁËËùÓĞµÄ±ä»»,ËùÒÔ½«UBOÖĞµÄÊı¾İ¸´ÖÆµ½uniform»º³åÇø.³ıÁËÃ»ÓĞÔİ´æ»º³åÇø,ÕâÓë¶¥µã»º³åÇøµÄ²Ù×÷ÍêÈ«ÏàÍ¬.
-    // Ê¹ÓÃubo½«²¢²»ÊÇ¾­³£±ä»¯µÄÖµ´«µİ¸ø×ÅÉ«Æ÷ÊÇ·Ç³£ÓĞĞ§µÄ·½Ê½.Ïà±È´«µİÒ»¸ö¸üĞ¡µÄÊı¾İ»º³åÇøµ½×ÅÉ«Æ÷ÖĞ,¸üÓĞĞ§µÄ·½Ê½ÊÇÊ¹ÓÃ³£Á¿.
+    // ç°åœ¨å®šä¹‰äº†æ‰€æœ‰çš„å˜æ¢,æ‰€ä»¥å°†UBOä¸­çš„æ•°æ®å¤åˆ¶åˆ°uniformç¼“å†²åŒº.é™¤äº†æ²¡æœ‰æš‚å­˜ç¼“å†²åŒº,è¿™ä¸é¡¶ç‚¹ç¼“å†²åŒºçš„æ“ä½œå®Œå…¨ç›¸åŒ.
+    // ä½¿ç”¨uboå°†å¹¶ä¸æ˜¯ç»å¸¸å˜åŒ–çš„å€¼ä¼ é€’ç»™ç€è‰²å™¨æ˜¯éå¸¸æœ‰æ•ˆçš„æ–¹å¼.ç›¸æ¯”ä¼ é€’ä¸€ä¸ªæ›´å°çš„æ•°æ®ç¼“å†²åŒºåˆ°ç€è‰²å™¨ä¸­,æ›´æœ‰æ•ˆçš„æ–¹å¼æ˜¯ä½¿ç”¨å¸¸é‡.
     void* data;
     m_device.mapMemory(uniformBufferMemory, 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
     m_device.unmapMemory(uniformBufferMemory);
 }
 
-// »æÖÆÖ¡ ´Ó½»»»Á´»ñÈ¡Í¼Ïñ,ÔÚÖ¡»º³åÇøÖĞÊ¹ÓÃ×÷Îª¸½¼şµÄÍ¼ÏñÀ´Ö´ĞĞÃüÁî»º³åÇøÖĞµÄÃüÁî,½«Í¼Ïñ·µ»¹¸ø½»»»Á´×îÖÕ³ÊÏÖ
+// ç»˜åˆ¶å¸§ ä»äº¤æ¢é“¾è·å–å›¾åƒ,åœ¨å¸§ç¼“å†²åŒºä¸­ä½¿ç”¨ä½œä¸ºé™„ä»¶çš„å›¾åƒæ¥æ‰§è¡Œå‘½ä»¤ç¼“å†²åŒºä¸­çš„å‘½ä»¤,å°†å›¾åƒè¿”è¿˜ç»™äº¤æ¢é“¾æœ€ç»ˆå‘ˆç°
 void drawFrame()
 {
-    // vkAcquireNextImageKHRÇ°Á½¸ö²ÎÊıÊÇÎÒÃÇÏ£Íû»ñÈ¡µ½Í¼ÏñµÄÂß¼­Éè±¸ºÍ½»»»Á´.µÚÈı¸ö²ÎÊıÖ¸¶¨»ñÈ¡ÓĞĞ§Í¼ÏñµÄ²Ù×÷timeout,µ¥Î»ÄÉÃë.ÎÒÃÇÊ¹ÓÃ64Î»ÎŞ·ûºÅ×î´óÖµ½ûÖ¹timeout
-    // ºóÁ½¸ö²ÎÊıÖ¸¶¨Ê¹ÓÃµÄÍ¬²½¶ÔÏó,µ±presentationÒıÇæÍê³ÉÁËÍ¼ÏñµÄ³ÊÏÖºó»áÊ¹ÓÃ¸Ã¶ÔÏó·¢ÆğĞÅºÅ,Õâ¾ÍÊÇ¿ªÊ¼»æÖÆµÄÊ±¼äµã,Ëü¿ÉÒÔÖ¸¶¨Ò»¸öĞÅºÅÁ¿semaphore»òÕßÕ¤À¸»òÕßÁ½Õß,ÕâÀïÊ¹ÓÃimageAvailableSemaphore
+    // vkAcquireNextImageKHRå‰ä¸¤ä¸ªå‚æ•°æ˜¯æˆ‘ä»¬å¸Œæœ›è·å–åˆ°å›¾åƒçš„é€»è¾‘è®¾å¤‡å’Œäº¤æ¢é“¾.ç¬¬ä¸‰ä¸ªå‚æ•°æŒ‡å®šè·å–æœ‰æ•ˆå›¾åƒçš„æ“ä½œtimeout,å•ä½çº³ç§’.æˆ‘ä»¬ä½¿ç”¨64ä½æ— ç¬¦å·æœ€å¤§å€¼ç¦æ­¢timeout
+    // åä¸¤ä¸ªå‚æ•°æŒ‡å®šä½¿ç”¨çš„åŒæ­¥å¯¹è±¡,å½“presentationå¼•æ“å®Œæˆäº†å›¾åƒçš„å‘ˆç°åä¼šä½¿ç”¨è¯¥å¯¹è±¡å‘èµ·ä¿¡å·,è¿™å°±æ˜¯å¼€å§‹ç»˜åˆ¶çš„æ—¶é—´ç‚¹,å®ƒå¯ä»¥æŒ‡å®šä¸€ä¸ªä¿¡å·é‡semaphoreæˆ–è€…æ …æ æˆ–è€…ä¸¤è€…,è¿™é‡Œä½¿ç”¨imageAvailableSemaphore
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-    // Èç¹û´íÎó±¨¸æ
+    // å¦‚æœé”™è¯¯æŠ¥å‘Š
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        // ÖØĞÂ´´½¨½»»»Á´
+        // é‡æ–°åˆ›å»ºäº¤æ¢é“¾
         recreateSwapChain();
         return;
     }
@@ -144,50 +144,50 @@ void drawFrame()
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
-    // ¶ÓÁĞÌá½»ºÍÍ¬²½
+    // é˜Ÿåˆ—æäº¤å’ŒåŒæ­¥
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    // µÈ´ı»º³åÇøĞÅºÅ¼¯
+    // ç­‰å¾…ç¼“å†²åŒºä¿¡å·é›†
     VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }; // Êı×é¶ÔÓ¦pWaitSemaphoresÖĞ¾ßÓĞÏàÍ¬Ë÷ÒıµÄĞÅºÅ
-    submitInfo.waitSemaphoreCount = 1; // µÈ´ıĞÅºÅµÄÊıÁ¿
-    submitInfo.pWaitSemaphores = waitSemaphores; // µÈ´ıÄÄĞ©¾ßÌåĞÅºÅ
-    submitInfo.pWaitDstStageMask = waitStages; // Ö¸¶¨pWaitSemaphoresÖĞ¾ßÓĞÏàÍ¬Ë÷ÒıµÄĞÅºÅ
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }; // æ•°ç»„å¯¹åº”pWaitSemaphoresä¸­å…·æœ‰ç›¸åŒç´¢å¼•çš„ä¿¡å·
+    submitInfo.waitSemaphoreCount = 1; // ç­‰å¾…ä¿¡å·çš„æ•°é‡
+    submitInfo.pWaitSemaphores = waitSemaphores; // ç­‰å¾…å“ªäº›å…·ä½“ä¿¡å·
+    submitInfo.pWaitDstStageMask = waitStages; // æŒ‡å®špWaitSemaphoresä¸­å…·æœ‰ç›¸åŒç´¢å¼•çš„ä¿¡å·
 
-    submitInfo.commandBufferCount = 1; // Ö¸¶¨±»Ö´ĞĞµÄÃüÁî»º³åÇøĞÅºÅÊıÁ¿
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex]; // Ö¸¶¨ÄÄ¸öÃüÁî»º³åÇø±»Êµ¼ÊÌá½»Ö´ĞĞ
+    submitInfo.commandBufferCount = 1; // æŒ‡å®šè¢«æ‰§è¡Œçš„å‘½ä»¤ç¼“å†²åŒºä¿¡å·æ•°é‡
+    submitInfo.pCommandBuffers = &commandBuffers[imageIndex]; // æŒ‡å®šå“ªä¸ªå‘½ä»¤ç¼“å†²åŒºè¢«å®é™…æäº¤æ‰§è¡Œ
 
-    // äÖÈ¾½áÊøĞÅºÅ¼¯
+    // æ¸²æŸ“ç»“æŸä¿¡å·é›†
     VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
-    submitInfo.signalSemaphoreCount = 1; // Ö¸¶¨±»Ö¸¶¨µÄÃüÁî»º³åÇøĞÅºÅÊıÁ¿
-    submitInfo.pSignalSemaphores = signalSemaphores;// Ö¸¶¨¾ßÌå±»Ìá½»Ö¸¶¨µÄÃüÁî»º³åÇø
+    submitInfo.signalSemaphoreCount = 1; // æŒ‡å®šè¢«æŒ‡å®šçš„å‘½ä»¤ç¼“å†²åŒºä¿¡å·æ•°é‡
+    submitInfo.pSignalSemaphores = signalSemaphores;// æŒ‡å®šå…·ä½“è¢«æäº¤æŒ‡å®šçš„å‘½ä»¤ç¼“å†²åŒº
 
-    // ÏòÍ¼Ïñ¶ÓÁĞÌá½»ÃüÁî»º³åÇø
-    // µ±¿ªÏú¸ºÔØ±È½Ï´óµÄÊ±ºò,´¦ÓÚĞ§ÂÊ¿¼ÂÇ,º¯Êı¿ÉÒÔ³ÖÓĞVkSubmitInfo½á¹¹ÌåÊı×é
-    // ×îºóÒ»¸ö²ÎÊıÒıÓÃÁËÒ»¸ö¿ÉÑ¡µÄÕ¤À¸,µ±ÃüÁî»º³åÇøÖ´ĞĞÍê±ÏÊ±ºòËü»á±»·¢ËÍĞÅºÅ
-    // ÎÒÃÇÊ¹ÓÃĞÅºÅÁ¿½øĞĞÍ¬²½,ËùÒÔÎÒÃÇĞèÒª´«µİVK_NULL_HANDLE
+    // å‘å›¾åƒé˜Ÿåˆ—æäº¤å‘½ä»¤ç¼“å†²åŒº
+    // å½“å¼€é”€è´Ÿè½½æ¯”è¾ƒå¤§çš„æ—¶å€™,å¤„äºæ•ˆç‡è€ƒè™‘,å‡½æ•°å¯ä»¥æŒæœ‰VkSubmitInfoç»“æ„ä½“æ•°ç»„
+    // æœ€åä¸€ä¸ªå‚æ•°å¼•ç”¨äº†ä¸€ä¸ªå¯é€‰çš„æ …æ ,å½“å‘½ä»¤ç¼“å†²åŒºæ‰§è¡Œå®Œæ¯•æ—¶å€™å®ƒä¼šè¢«å‘é€ä¿¡å·
+    // æˆ‘ä»¬ä½¿ç”¨ä¿¡å·é‡è¿›è¡ŒåŒæ­¥,æ‰€ä»¥æˆ‘ä»¬éœ€è¦ä¼ é€’VK_NULL_HANDLE
     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 
-    // ½«½á¹ûÌá½»µ½½»»»Á´,Ê¹Æä×îÖÕÏÔÊ¾ÔÚÆÁÄ»ÉÏ
+    // å°†ç»“æœæäº¤åˆ°äº¤æ¢é“¾,ä½¿å…¶æœ€ç»ˆæ˜¾ç¤ºåœ¨å±å¹•ä¸Š
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-    // Ö¸¶¨ÔÚ½øĞĞpresentationÖ®Ç°ÒªµÈ´ıµÄĞÅºÅÁ¿
+    // æŒ‡å®šåœ¨è¿›è¡Œpresentationä¹‹å‰è¦ç­‰å¾…çš„ä¿¡å·é‡
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    // ½»»»Á´¼¯ºÏ
+    // äº¤æ¢é“¾é›†åˆ
     VkSwapchainKHR swapChains[] = { swapChain };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
 
     presentInfo.pImageIndices = &imageIndex;
 
-    // Ìá½»ÇëÇó³ÊÏÖ½»»»Á´ÖĞµÄÍ¼Ïñ
+    // æäº¤è¯·æ±‚å‘ˆç°äº¤æ¢é“¾ä¸­çš„å›¾åƒ
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
