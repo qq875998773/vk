@@ -18,8 +18,9 @@ public:
 
     std::vector<const char*> getGLFWExtensions();
 
-    void initWindow();  // 初始化窗体
-    void initVulkan();  // 初始化vulkan|渲染管线
+    void initVulkan();
+    void initWindow();
+    void initSwapChain();
 
     void mainLoop();    // 主循环将图形绘制到屏幕
 

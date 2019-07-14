@@ -7,6 +7,8 @@ project ("VK")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+include(FindPackageHandleStandardArgs)
+
 if (WIN32)
     find_package(GLFW3 REQUIRED)
 elseif (UNIX AND NOT APPLE)

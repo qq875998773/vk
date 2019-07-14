@@ -7,35 +7,40 @@ bool enableValidationLayers = true;
 
 const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 
+VKRender::VKRender()
+{
+
+}
+
 void VKRender::init(std::vector<const char*> const& extensions)
 {
     initInstance(extensions);
     initDevice();
     initCommandBuffer();
 
-    //createSurface();            // åˆ›å»ºçª—ä½“å’Œvulkanå®ä¾‹è¿æ¥
-    //createLogicalDevice();      // åˆ›å»ºé€»è¾‘è®¾å¤‡
-    //createSwapChain();          // äº¤æ¢é“¾
-    //createImageViews();         // åˆ›å»ºå›¾åƒè§†å›¾
-    //createRenderPass();         // æ¸²æŸ“é€šé“
-    //createDescriptorSetLayout();// åˆ›å»ºæè¿°ç¬¦è®¾ç½®å¸ƒå±€
-    //createGraphicsPipeline();   // å›¾å½¢ç®¡çº¿
-    //createCommandPool();        // åˆ›å»ºä»¤ç¼“å†²åŒº
-    //createDepthResources();     // åˆ›å»ºæ·±åº¦å›¾åƒ
-    //createFramebuffers();       // å¸§ç¼“å†²åŒº
-    //createTextureImage();       // åˆ›å»ºåŠ è½½çº¹ç†å›¾ç‰‡ stbåº“
-    //createTextureImageView();   // åˆ›å»ºå›¾åƒè§†å›¾è®¿é—®çº¹ç†å›¾åƒ
-    //createTextureSampler();     // åˆ›å»ºé…ç½®é‡‡æ ·å™¨å¯¹è±¡
-    ////loadModel();                // åŠ è½½æ¨¡å‹ tinyobjloaderåº“
-    ////loadModel1();               // æµ‹è¯•ä¸‰è§’å½¢
-    //loadModel2();               // ç”»çƒ
-    //createVertexBuffer();       // åˆ›å»ºé¡¶ç‚¹ç¼“å†²åŒº
-    //createIndexBuffer();        // åˆ›å»ºé¡¶ç‚¹ç´¢å¼•ç¼“å†²åŒº
-    //createUniformBuffer();      // åˆ›å»ºå…¨å±€ç¼“å†²åŒº
-    //createDescriptorPool();     // åˆ›å»ºæè¿°ç¬¦é›†åˆ
-    //createDescriptorSet();      // åˆ›å»ºåˆ†é…æè¿°ç¬¦é›†åˆ
-    //createCommandBuffers();     // åˆ›å»ºå‘½ä»¤ç¼“å†²åŒº
-    //createSemaphores();         // åˆ›å»ºä¿¡å·å¯¹è±¡
+    //createSurface();            // ´´½¨´°ÌåºÍvulkanÊµÀıÁ¬½Ó
+    //createLogicalDevice();      // ´´½¨Âß¼­Éè±¸
+    //createSwapChain();          // ½»»»Á´
+    //createImageViews();         // ´´½¨Í¼ÏñÊÓÍ¼
+    //createRenderPass();         // äÖÈ¾Í¨µÀ
+    //createDescriptorSetLayout();// ´´½¨ÃèÊö·ûÉèÖÃ²¼¾Ö
+    //createGraphicsPipeline();   // Í¼ĞÎ¹ÜÏß
+    //createCommandPool();        // ´´½¨Áî»º³åÇø
+    //createDepthResources();     // ´´½¨Éî¶ÈÍ¼Ïñ
+    //createFramebuffers();       // Ö¡»º³åÇø
+    //createTextureImage();       // ´´½¨¼ÓÔØÎÆÀíÍ¼Æ¬ stb¿â
+    //createTextureImageView();   // ´´½¨Í¼ÏñÊÓÍ¼·ÃÎÊÎÆÀíÍ¼Ïñ
+    //createTextureSampler();     // ´´½¨ÅäÖÃ²ÉÑùÆ÷¶ÔÏó
+    ////loadModel();                // ¼ÓÔØÄ£ĞÍ tinyobjloader¿â
+    ////loadModel1();               // ²âÊÔÈı½ÇĞÎ
+    //loadModel2();               // »­Çò
+    //createVertexBuffer();       // ´´½¨¶¥µã»º³åÇø
+    //createIndexBuffer();        // ´´½¨¶¥µãË÷Òı»º³åÇø
+    //createUniformBuffer();      // ´´½¨È«¾Ö»º³åÇø
+    //createDescriptorPool();     // ´´½¨ÃèÊö·û¼¯ºÏ
+    //createDescriptorSet();      // ´´½¨·ÖÅäÃèÊö·û¼¯ºÏ
+    //createCommandBuffers();     // ´´½¨ÃüÁî»º³åÇø
+    //createSemaphores();         // ´´½¨ĞÅºÅ¶ÔÏó
 
     if (enableValidationLayers)
     {
@@ -45,33 +50,33 @@ void VKRender::init(std::vector<const char*> const& extensions)
 
 void VKRender::destroy()
 {
-    //vkDestroySampler(device, textureSampler, nullptr);// é”€æ¯çº¹ç†é‡‡æ ·å™¨
-    //vkDestroyImageView(device, textureImageView, nullptr);// é”€æ¯çº¹ç†å›¾åƒè§†å›¾
+    //vkDestroySampler(device, textureSampler, nullptr);// Ïú»ÙÎÆÀí²ÉÑùÆ÷
+    //vkDestroyImageView(device, textureImageView, nullptr);// Ïú»ÙÎÆÀíÍ¼ÏñÊÓÍ¼
 
-    //vkDestroyImage(device, textureImage, nullptr);// æ¸…é™¤è´´å›¾å›¾åƒ
-    //vkFreeMemory(device, textureImageMemory, nullptr);// æ¸…é™¤è´´å›¾å›¾åƒè®°å½•
+    //vkDestroyImage(device, textureImage, nullptr);// Çå³ıÌùÍ¼Í¼Ïñ
+    //vkFreeMemory(device, textureImageMemory, nullptr);// Çå³ıÌùÍ¼Í¼Ïñ¼ÇÂ¼
 
-    //vkDestroyDescriptorPool(device, descriptorPool, nullptr); // é”€æ¯æè¿°å¯¹è±¡æ± 
+    //vkDestroyDescriptorPool(device, descriptorPool, nullptr); // Ïú»ÙÃèÊö¶ÔÏó³Ø
 
     //vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
     //vkDestroyBuffer(device, uniformBuffer, nullptr);
     //vkFreeMemory(device, uniformBufferMemory, nullptr);
 
-    //vkDestroyBuffer(device, indexBuffer, nullptr); // æ¸…é™¤é¡¶ç‚¹ç´¢å¼•ç¼“å†²åŒº
-    //vkFreeMemory(device, indexBufferMemory, nullptr);// æ¸…é™¤é¡¶ç‚¹ç´¢å¼•ç¼“å†²åŒºè®°å½•
+    //vkDestroyBuffer(device, indexBuffer, nullptr); // Çå³ı¶¥µãË÷Òı»º³åÇø
+    //vkFreeMemory(device, indexBufferMemory, nullptr);// Çå³ı¶¥µãË÷Òı»º³åÇø¼ÇÂ¼
 
-    //vkDestroyBuffer(device, vertexBuffer, nullptr); // æ¸…é™¤é¡¶ç‚¹ç¼“å†²åŒº
-    //vkFreeMemory(device, vertexBufferMemory, nullptr);// æ¸…é™¤é¡¶ç‚¹ç¼“å†²åŒºè®°å½•
+    //vkDestroyBuffer(device, vertexBuffer, nullptr); // Çå³ı¶¥µã»º³åÇø
+    //vkFreeMemory(device, vertexBufferMemory, nullptr);// Çå³ı¶¥µã»º³åÇø¼ÇÂ¼
 
-    //vkDestroySemaphore(device, renderFinishedSemaphore, nullptr); // æ¸…é™¤æ¸²æŸ“ä¿¡å·
-    //vkDestroySemaphore(device, imageAvailableSemaphore, nullptr); // æ¸…é™¤å›¾åƒä¿¡å·
+    //vkDestroySemaphore(device, renderFinishedSemaphore, nullptr); // Çå³ıäÖÈ¾ĞÅºÅ
+    //vkDestroySemaphore(device, imageAvailableSemaphore, nullptr); // Çå³ıÍ¼ÏñĞÅºÅ
 
-    //vkDestroyCommandPool(device, commandPool, nullptr);// é”€æ¯å‘½ä»¤ç¼“å†²åŒº
+    //vkDestroyCommandPool(device, commandPool, nullptr);// Ïú»ÙÃüÁî»º³åÇø
 
-    //vkDestroyDevice(device, nullptr); // æ¸…é™¤é€»è¾‘è®¾å¤‡èµ„æº
+    //vkDestroyDevice(device, nullptr); // Çå³ıÂß¼­Éè±¸×ÊÔ´
     //DestroyDebugReportCallbackEXT(instance, callback, nullptr);
-    //vkDestroySurfaceKHR(instance, surface, nullptr); // GLFWæ²¡æœ‰æä¾›ä¸“ç”¨çš„å‡½æ•°é”€æ¯surface,å¯ä»¥ç®€å•çš„é€šè¿‡VulkanåŸå§‹çš„API
-    //vkDestroyInstance(instance, nullptr); // ç¡®ä¿surfaceçš„æ¸…ç†æ˜¯åœ¨instanceé”€æ¯ä¹‹å‰å®Œæˆ
+    //vkDestroySurfaceKHR(instance, surface, nullptr); // GLFWÃ»ÓĞÌá¹©×¨ÓÃµÄº¯ÊıÏú»Ùsurface,¿ÉÒÔ¼òµ¥µÄÍ¨¹ıVulkanÔ­Ê¼µÄAPI
+    //vkDestroyInstance(instance, nullptr); // È·±£surfaceµÄÇåÀíÊÇÔÚinstanceÏú»ÙÖ®Ç°Íê³É
 }
 
 void VKRender::waitIdle()
@@ -126,7 +131,7 @@ void VKRender::initDevice()
     auto const& physical_devices = m_instance->enumeratePhysicalDevices();
     if (physical_devices.size() == 0)
     {
-        throw std::runtime_error("Failed to find GPU with Vulkan support!");
+        throw std::runtime_error("Failed to find physical device!");
     }
 
     int physical_device_idx = -1;
@@ -137,6 +142,11 @@ void VKRender::initDevice()
     {
         auto const& properties = physical_devices[i].getProperties();
         std::cout << i << ": " << properties.deviceName << std::endl;
+    }
+
+    // find a suitable device with graphics supported
+    for (auto i = 0; i < physical_devices.size(); ++i)
+    {
         auto queue_family_properties = physical_devices[i].getQueueFamilyProperties();
         for (auto j = 0; j < queue_family_properties.size(); ++j)
         {
@@ -165,6 +175,12 @@ void VKRender::initDevice()
         vk::DeviceQueueCreateInfo deviceQueueCreateInfo(vk::DeviceQueueCreateFlags(), queue_family_idx, 1, &queuePriority);
         m_device = m_physical_device.createDeviceUnique(vk::DeviceCreateInfo(vk::DeviceCreateFlags(), 1, &deviceQueueCreateInfo));
     }
+}
+
+void VKRender::initCommandPool()
+{
+    // create a UniqueCommandPool to allocate a CommandBuffer from
+    m_command_pool = m_device->createCommandPoolUnique(vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(), m_queue_family_index));
 }
 
 void VKRender::initCommandBuffer()
@@ -234,7 +250,7 @@ void VKRender::setupDebugCallback()
     if (!enableValidationLayers) return;
 
     // vkCreateDebugReportCallbackEXT() and vkDestroyDebugReportCallbackEXT() are not part of Vulkan core
-    // The function address need to be dynamically loaded
+    // The extension function address need to be dynamically loaded
     pfnVkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(m_instance->getProcAddr("vkCreateDebugReportCallbackEXT"));
     if (!pfnVkCreateDebugReportCallbackEXT)
     {
@@ -254,4 +270,17 @@ void VKRender::setupDebugCallback()
     {
         throw std::runtime_error("Failed to set up debug callback!");
     }
+}
+
+namespace
+{
+    struct VKRenderConcrete : public VKRender
+    {
+        VKRenderConcrete() = default;
+    };
+}
+
+std::unique_ptr<VKRender> VKRender::create()
+{
+    return std::make_unique<VKRenderConcrete>();
 }

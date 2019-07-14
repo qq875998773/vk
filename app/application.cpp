@@ -16,6 +16,13 @@ void Application::run()
     cleanup();
 }
 
+void Application::initVulkan()
+{
+    m_vk = VKRender::create();
+
+    auto glfw_exts = getGLFWExtensions();
+    m_vk->init(glfw_exts);
+}
 
 void Application::initWindow()
 {
@@ -29,12 +36,9 @@ void Application::initWindow()
     glfwSetWindowSizeCallback(m_window.get(), Application::onWindowResized);
 }
 
-void Application::initVulkan()
+void Application::initSwapChain()
 {
-    m_vk = std::make_unique<VKRender>();
-
-    auto glfw_exts = getGLFWExtensions();
-    m_vk->init(glfw_exts);
+    //glfwCreateWindowSurface()
 }
 
 void Application::mainLoop()
