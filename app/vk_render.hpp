@@ -1,8 +1,10 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
-
 #include "vk_device.hpp"
+
+#include <functional>
+
+#include <vulkan/vulkan.hpp>
 
 // 如果仅仅是为了测试交换链的有效性是远远不够的,因为它还不能很好的与窗体surface兼容
 // 创建交换链同样也需要很多设置,所以我们需要了解一些有关设置的细节
@@ -17,12 +19,13 @@ struct SwapChainSupportDetails
 class VKRender
 {
 public:
-    void init(std::vector<const char*> const& extensions = {});
+    void init(std::vector<const char*> const& extensions = {}, std::function<VkSurfaceKHR(VkInstance)> create_surface_func = nullptr);
     void destroy();
 
     void waitIdle();
 
-    static std::unique_ptr<VKRender> create();
+    using UPtr = std::unique_ptr<VKRender>;
+    static UPtr create();
 
 protected:
     VKRender() = default;

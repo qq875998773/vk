@@ -20,8 +20,15 @@ void Application::initVulkan()
 {
     m_vk = VKRender::create();
 
-    auto glfw_exts = getGLFWExtensions();
-    m_vk->init(glfw_exts);
+    m_vk->init(getGLFWExtensions(),
+        // use glfw to create Vulkan surface
+        [this](VkInstance instance) -> VkSurfaceKHR
+        {
+            VkSurfaceKHR surface;
+            glfwCreateWindowSurface(instance, m_window.get(), nullptr, &surface);
+            return surface;
+        }
+    );
 }
 
 void Application::initWindow()

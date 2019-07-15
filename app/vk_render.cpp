@@ -9,12 +9,16 @@ namespace defaults
     const std::vector<const char*> validation_layers = { "VK_LAYER_KHRONOS_validation" };
 }
 
-void VKRender::init(std::vector<const char*> const& extensions)
+void VKRender::init(std::vector<const char*> const& extensions, std::function<VkSurfaceKHR(VkInstance)> create_surface_func)
 {
     initInstance(extensions);
     initDevice();
 
-    //createSurface();            // 创建窗体和vulkan实例连接
+    if (create_surface_func)
+    {
+        m_surface = create_surface_func(*m_instance);
+    }
+
     //createLogicalDevice();      // 创建逻辑设备
     //createSwapChain();          // 交换链
     //createImageViews();         // 创建图像视图
