@@ -5,6 +5,8 @@ set(APP_SRC
     "application.hpp"
     "vk_render.cpp"
     "vk_render.hpp"
+    "vk_device.cpp"
+    "vk_device.hpp"
 )
 
 add_executable (vk ${APP_SRC})

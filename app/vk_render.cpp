@@ -3,46 +3,42 @@
 #include <iostream>
 #include <sstream>
 
-bool enableValidationLayers = true;
-
-const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-
-VKRender::VKRender()
+namespace defaults
 {
-
+    const bool enable_validation_layers = true;
+    const std::vector<const char*> validation_layers = { "VK_LAYER_KHRONOS_validation" };
 }
 
 void VKRender::init(std::vector<const char*> const& extensions)
 {
     initInstance(extensions);
     initDevice();
-    initCommandBuffer();
 
-    //createSurface();            // ´´½¨´°ÌåºÍvulkanÊµÀıÁ¬½Ó
-    //createLogicalDevice();      // ´´½¨Âß¼­Éè±¸
-    //createSwapChain();          // ½»»»Á´
-    //createImageViews();         // ´´½¨Í¼ÏñÊÓÍ¼
-    //createRenderPass();         // äÖÈ¾Í¨µÀ
-    //createDescriptorSetLayout();// ´´½¨ÃèÊö·ûÉèÖÃ²¼¾Ö
-    //createGraphicsPipeline();   // Í¼ĞÎ¹ÜÏß
-    //createCommandPool();        // ´´½¨Áî»º³åÇø
-    //createDepthResources();     // ´´½¨Éî¶ÈÍ¼Ïñ
-    //createFramebuffers();       // Ö¡»º³åÇø
-    //createTextureImage();       // ´´½¨¼ÓÔØÎÆÀíÍ¼Æ¬ stb¿â
-    //createTextureImageView();   // ´´½¨Í¼ÏñÊÓÍ¼·ÃÎÊÎÆÀíÍ¼Ïñ
-    //createTextureSampler();     // ´´½¨ÅäÖÃ²ÉÑùÆ÷¶ÔÏó
-    ////loadModel();                // ¼ÓÔØÄ£ĞÍ tinyobjloader¿â
-    ////loadModel1();               // ²âÊÔÈı½ÇĞÎ
-    //loadModel2();               // »­Çò
-    //createVertexBuffer();       // ´´½¨¶¥µã»º³åÇø
-    //createIndexBuffer();        // ´´½¨¶¥µãË÷Òı»º³åÇø
-    //createUniformBuffer();      // ´´½¨È«¾Ö»º³åÇø
-    //createDescriptorPool();     // ´´½¨ÃèÊö·û¼¯ºÏ
-    //createDescriptorSet();      // ´´½¨·ÖÅäÃèÊö·û¼¯ºÏ
-    //createCommandBuffers();     // ´´½¨ÃüÁî»º³åÇø
-    //createSemaphores();         // ´´½¨ĞÅºÅ¶ÔÏó
+    //createSurface();            // åˆ›å»ºçª—ä½“å’Œvulkanå®ä¾‹è¿æ¥
+    //createLogicalDevice();      // åˆ›å»ºé€»è¾‘è®¾å¤‡
+    //createSwapChain();          // äº¤æ¢é“¾
+    //createImageViews();         // åˆ›å»ºå›¾åƒè§†å›¾
+    //createRenderPass();         // æ¸²æŸ“é€šé“
+    //createDescriptorSetLayout();// åˆ›å»ºæè¿°ç¬¦è®¾ç½®å¸ƒå±€
+    //createGraphicsPipeline();   // å›¾å½¢ç®¡çº¿
+    //createCommandPool();        // åˆ›å»ºä»¤ç¼“å†²åŒº
+    //createDepthResources();     // åˆ›å»ºæ·±åº¦å›¾åƒ
+    //createFramebuffers();       // Ö¡å¸§ç¼“å†²åŒº
+    //createTextureImage();       // åˆ›å»ºåŠ è½½çº¹ç†å›¾ç‰‡ stbåº“
+    //createTextureImageView();   // åˆ›å»ºå›¾åƒè§†å›¾è®¿é—®çº¹ç†å›¾åƒ
+    //createTextureSampler();     // åˆ›å»ºé…ç½®é‡‡æ ·å™¨å¯¹è±¡
+    ////loadModel();                // åŠ è½½æ¨¡å‹ tinyobjloaderåº“
+    ////loadModel1();               // æµ‹è¯•ä¸‰è§’å½¢
+    //loadModel2();               // ç”»çƒ
+    //createVertexBuffer();       // åˆ›å»ºé¡¶ç‚¹ç¼“å†²åŒº
+    //createIndexBuffer();        // åˆ›å»ºé¡¶ç‚¹ç´¢å¼•ç¼“å†²åŒº
+    //createUniformBuffer();      // åˆ›å»ºå…¨å±€ç¼“å†²åŒº
+    //createDescriptorPool();     // åˆ›å»ºæè¿°ç¬¦é›†åˆ
+    //createDescriptorSet();      // åˆ›å»ºåˆ†é…æè¿°ç¬¦é›†åˆ
+    //createCommandBuffers();     // åˆ›å»ºå‘½ä»¤ç¼“å†²åŒº
+    //createSemaphores();         // åˆ›å»ºä¿¡å·å¯¹è±¡
 
-    if (enableValidationLayers)
+    if (defaults::enable_validation_layers)
     {
         setupDebugCallback();
     }
@@ -50,33 +46,33 @@ void VKRender::init(std::vector<const char*> const& extensions)
 
 void VKRender::destroy()
 {
-    //vkDestroySampler(device, textureSampler, nullptr);// Ïú»ÙÎÆÀí²ÉÑùÆ÷
-    //vkDestroyImageView(device, textureImageView, nullptr);// Ïú»ÙÎÆÀíÍ¼ÏñÊÓÍ¼
+    //vkDestroySampler(device, textureSampler, nullptr);// é”€æ¯çº¹ç†é‡‡æ ·å™¨
+    //vkDestroyImageView(device, textureImageView, nullptr);// é”€æ¯çº¹ç†å›¾åƒè§†å›¾
 
-    //vkDestroyImage(device, textureImage, nullptr);// Çå³ıÌùÍ¼Í¼Ïñ
-    //vkFreeMemory(device, textureImageMemory, nullptr);// Çå³ıÌùÍ¼Í¼Ïñ¼ÇÂ¼
+    //vkDestroyImage(device, textureImage, nullptr);// æ¸…é™¤è´´å›¾å›¾åƒ
+    //vkFreeMemory(device, textureImageMemory, nullptr);// æ¸…é™¤è´´å›¾å›¾åƒè®°å½•
 
-    //vkDestroyDescriptorPool(device, descriptorPool, nullptr); // Ïú»ÙÃèÊö¶ÔÏó³Ø
+    //vkDestroyDescriptorPool(device, descriptorPool, nullptr); // é”€æ¯æè¿°å¯¹è±¡æ± 
 
     //vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
     //vkDestroyBuffer(device, uniformBuffer, nullptr);
     //vkFreeMemory(device, uniformBufferMemory, nullptr);
 
-    //vkDestroyBuffer(device, indexBuffer, nullptr); // Çå³ı¶¥µãË÷Òı»º³åÇø
-    //vkFreeMemory(device, indexBufferMemory, nullptr);// Çå³ı¶¥µãË÷Òı»º³åÇø¼ÇÂ¼
+    //vkDestroyBuffer(device, indexBuffer, nullptr); // æ¸…é™¤é¡¶ç‚¹ç´¢å¼•ç¼“å†²åŒº
+    //vkFreeMemory(device, indexBufferMemory, nullptr);// æ¸…é™¤é¡¶ç‚¹ç´¢å¼•ç¼“å†²åŒºè®°å½•
 
-    //vkDestroyBuffer(device, vertexBuffer, nullptr); // Çå³ı¶¥µã»º³åÇø
-    //vkFreeMemory(device, vertexBufferMemory, nullptr);// Çå³ı¶¥µã»º³åÇø¼ÇÂ¼
+    //vkDestroyBuffer(device, vertexBuffer, nullptr); // æ¸…é™¤é¡¶ç‚¹ç¼“å†²åŒº
+    //vkFreeMemory(device, vertexBufferMemory, nullptr);// æ¸…é™¤é¡¶ç‚¹ç¼“å†²åŒºè®°å½•
 
-    //vkDestroySemaphore(device, renderFinishedSemaphore, nullptr); // Çå³ıäÖÈ¾ĞÅºÅ
-    //vkDestroySemaphore(device, imageAvailableSemaphore, nullptr); // Çå³ıÍ¼ÏñĞÅºÅ
+    //vkDestroySemaphore(device, renderFinishedSemaphore, nullptr); // æ¸…é™¤æ¸²æŸ“ä¿¡å·
+    //vkDestroySemaphore(device, imageAvailableSemaphore, nullptr); // æ¸…é™¤å›¾åƒä¿¡å·
 
-    //vkDestroyCommandPool(device, commandPool, nullptr);// Ïú»ÙÃüÁî»º³åÇø
+    //vkDestroyCommandPool(device, commandPool, nullptr);// é”€æ¯å‘½ä»¤ç¼“å†²åŒº
 
-    //vkDestroyDevice(device, nullptr); // Çå³ıÂß¼­Éè±¸×ÊÔ´
+    //vkDestroyDevice(device, nullptr); // æ¸…é™¤é€»è¾‘è®¾å¤‡èµ„æº
     //DestroyDebugReportCallbackEXT(instance, callback, nullptr);
-    //vkDestroySurfaceKHR(instance, surface, nullptr); // GLFWÃ»ÓĞÌá¹©×¨ÓÃµÄº¯ÊıÏú»Ùsurface,¿ÉÒÔ¼òµ¥µÄÍ¨¹ıVulkanÔ­Ê¼µÄAPI
-    //vkDestroyInstance(instance, nullptr); // È·±£surfaceµÄÇåÀíÊÇÔÚinstanceÏú»ÙÖ®Ç°Íê³É
+    //vkDestroySurfaceKHR(instance, surface, nullptr); // GLFWæ²¡æœ‰æä¾›ä¸“ç”¨çš„å‡½æ•°é”€æ¯surface,å¯ä»¥ç®€å•çš„é€šè¿‡VulkanåŸå§‹çš„API
+    //vkDestroyInstance(instance, nullptr); // ç¡®ä¿surfaceçš„æ¸…ç†æ˜¯åœ¨instanceé”€æ¯ä¹‹å‰å®Œæˆ
 }
 
 void VKRender::waitIdle()
@@ -88,13 +84,13 @@ void VKRender::initInstance(std::vector<const char*> const& extensions)
 {
     std::vector<const char*> layers;
     std::vector<const char*> exts = extensions;
-    if (enableValidationLayers)
+    if (defaults::enable_validation_layers)
     {
-        auto instanceLayerProperties = vk::enumerateInstanceLayerProperties();
-        if (checkLayers(validationLayers, instanceLayerProperties))
+        auto instance_layer_properties = vk::enumerateInstanceLayerProperties();
+        if (checkLayers(defaults::validation_layers, instance_layer_properties))
         {
             exts.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            layers = validationLayers;
+            layers = defaults::validation_layers;
         }
         else
         {
@@ -102,7 +98,7 @@ void VKRender::initInstance(std::vector<const char*> const& extensions)
         }
     }
 
-    vk::ApplicationInfo appInfo(
+    vk::ApplicationInfo app_info(
         "VK Demo",
         VK_MAKE_VERSION(1, 0, 0),
         "No Engine",
@@ -110,16 +106,16 @@ void VKRender::initInstance(std::vector<const char*> const& extensions)
         VK_API_VERSION_1_0
     );
 
-    vk::InstanceCreateInfo createInfo(
+    vk::InstanceCreateInfo create_info(
         vk::InstanceCreateFlags(),
-        &appInfo,
+        &app_info,
         layers.size(),
         layers.data(),
         exts.size(),
         exts.data()
     );
 
-    m_instance = vk::createInstanceUnique(createInfo);
+    m_instance = vk::createInstanceUnique(create_info);
     if (!m_instance.get())
     {
         throw std::runtime_error("Failed to create instance!");
@@ -134,58 +130,9 @@ void VKRender::initDevice()
         throw std::runtime_error("Failed to find physical device!");
     }
 
-    int physical_device_idx = -1;
-    int queue_family_idx = -1;
+    m_device = VKDevice::create(physical_devices[0]);
 
-    std::cout << "Found available device(s): " << std::endl;
-    for (auto i = 0; i < physical_devices.size(); ++i)
-    {
-        auto const& properties = physical_devices[i].getProperties();
-        std::cout << i << ": " << properties.deviceName << std::endl;
-    }
-
-    // find a suitable device with graphics supported
-    for (auto i = 0; i < physical_devices.size(); ++i)
-    {
-        auto queue_family_properties = physical_devices[i].getQueueFamilyProperties();
-        for (auto j = 0; j < queue_family_properties.size(); ++j)
-        {
-            auto const& queue_family = queue_family_properties[j];
-
-            // Pick the first physical device and queue which supports graphics
-            if (physical_device_idx < 0 && queue_family_idx < 0 && queue_family.queueFlags & vk::QueueFlagBits::eGraphics)
-            {
-                physical_device_idx = i;
-                queue_family_idx = j;
-                std::cout << "  * ";
-            }
-            else
-            {
-                std::cout << "    ";
-            }
-
-            std::cout << "Queue family #" << j << "  count: " << queue_family.queueCount << "  " << vk::to_string(queue_family.queueFlags) << std::endl;
-        }
-    }
-
-    if (physical_device_idx >= 0 && queue_family_idx >= 0)
-    {
-        m_physical_device = physical_devices[physical_device_idx];
-        float queuePriority = 0.f;
-        vk::DeviceQueueCreateInfo deviceQueueCreateInfo(vk::DeviceQueueCreateFlags(), queue_family_idx, 1, &queuePriority);
-        m_device = m_physical_device.createDeviceUnique(vk::DeviceCreateInfo(vk::DeviceCreateFlags(), 1, &deviceQueueCreateInfo));
-    }
-}
-
-void VKRender::initCommandPool()
-{
-    // create a UniqueCommandPool to allocate a CommandBuffer from
-    m_command_pool = m_device->createCommandPoolUnique(vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(), m_queue_family_index));
-}
-
-void VKRender::initCommandBuffer()
-{
-    //m_commandPool = m_device->createCommandPoolUnique(vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(), ))
+    printDeviceInfo();
 }
 
 bool VKRender::checkLayers(std::vector<char const*> const& layers, std::vector<vk::LayerProperties> const& properties)
@@ -247,7 +194,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugFunc(VkDebugReportFlagsEXT flags, VkDebugR
 
 void VKRender::setupDebugCallback()
 {
-    if (!enableValidationLayers) return;
+    if (!defaults::enable_validation_layers) return;
 
     // vkCreateDebugReportCallbackEXT() and vkDestroyDebugReportCallbackEXT() are not part of Vulkan core
     // The extension function address need to be dynamically loaded
@@ -271,6 +218,31 @@ void VKRender::setupDebugCallback()
         throw std::runtime_error("Failed to set up debug callback!");
     }
 }
+
+void VKRender::printDeviceInfo()
+{
+    if (!m_instance.get())
+    {
+        return;
+    }
+
+    auto const& physical_devices = m_instance->enumeratePhysicalDevices();
+
+    std::cout << "Found available device(s): " << std::endl;
+    for (auto i = 0; i < physical_devices.size(); ++i)
+    {
+        auto const& properties = physical_devices[i].getProperties();
+        std::cout << i << ": " << properties.deviceName << std::endl;
+
+        auto queue_family_properties = physical_devices[i].getQueueFamilyProperties();
+        for (auto j = 0; j < queue_family_properties.size(); ++j)
+        {
+            auto const& queue_family = queue_family_properties[j];
+            std::cout << "    Queue family #" << j << "  count: " << queue_family.queueCount << "  " << vk::to_string(queue_family.queueFlags) << std::endl;
+        }
+    }
+}
+
 
 namespace
 {

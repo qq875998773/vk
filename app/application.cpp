@@ -29,7 +29,6 @@ void Application::initWindow()
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    // 创建窗体 设置尺寸和标题
     m_window.reset(glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Demo", nullptr, nullptr));
 
     glfwSetWindowUserPointer(m_window.get(), this);
@@ -66,13 +65,12 @@ std::vector<const char*> Application::getGLFWExtensions()
 {
     std::vector<const char*> extensions;
 
-    unsigned int glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    unsigned int glfw_extension_count = 0;
+    auto glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
-    for (unsigned int i = 0; i < glfwExtensionCount; i++)
+    for (unsigned int i = 0; i < glfw_extension_count; ++i)
     {
-        extensions.push_back(glfwExtensions[i]);
+        extensions.push_back(glfw_extensions[i]);
     }
 
     return extensions;

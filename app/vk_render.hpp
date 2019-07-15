@@ -2,18 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-// 返回满足某个属性的队列簇索引.定义结构体,其中索引-1表示"未找到"
-// 支持graphics命令的的队列簇和支持presentation命令的队列簇可能不是同一个簇
-struct QueueFamilyIndices
-{
-    int graphicsFamily = -1;
-    int presentFamily = -1;
-
-    bool isComplete()
-    {
-        return graphicsFamily >= 0 && presentFamily >= 0;
-    }
-};
+#include "vk_device.hpp"
 
 // 如果仅仅是为了测试交换链的有效性是远远不够的,因为它还不能很好的与窗体surface兼容
 // 创建交换链同样也需要很多设置,所以我们需要了解一些有关设置的细节
@@ -36,37 +25,27 @@ public:
     static std::unique_ptr<VKRender> create();
 
 protected:
-    VKRender();
+    VKRender() = default;
 
 private:
     void initInstance(std::vector<const char*> const& extensions);
     void initDevice();
-    void initCommandPool();
-    void initCommandBuffer();
 
     bool checkLayers(std::vector<char const*> const& layers, std::vector<vk::LayerProperties> const& properties);
 
     void setupDebugCallback();
 
+    void printDeviceInfo();
+
     // Vulkan instance
     vk::UniqueInstance m_instance;
 
-    // Selected physical device
-    vk::PhysicalDevice m_physical_device;
-    // Selected queue family index
-    uint32_t m_queue_family_index;
-    // Logical device created from one physical device
-    vk::UniqueDevice m_device;
-
-    QueueFamilyIndices m_queue_family_indices;
-
-    vk::UniqueCommandPool m_command_pool;
-
-    std::vector<vk::CommandBuffer> m_commandBuffers;
+    // logical device wrapper
+    VKDevice::UPtr m_device;
 
     vk::UniqueDebugReportCallbackEXT m_debug_callback;
 
-    vk::SurfaceKHR m_surface;       // surface就是Vulkan与窗体系统的连接桥梁
+    vk::SurfaceKHR m_surface;
 
 
     vk::Queue m_graphicsQueue;      // 绘图队列句柄
