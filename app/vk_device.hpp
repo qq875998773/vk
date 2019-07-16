@@ -2,23 +2,31 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <string>
+
 class VKDevice
 {
 public:
     using UPtr = std::unique_ptr<VKDevice>;
 
-    static UPtr create(vk::PhysicalDevice const& physical_device, vk::QueueFlags required_queues = vk::QueueFlagBits::eGraphics);
+    static UPtr create(vk::PhysicalDevice const& physical_device, std::vector<const char*> const& extensions = {}, vk::QueueFlags required_queues = vk::QueueFlagBits::eGraphics);
 
     void waitIdle() const;
 
+    vk::PhysicalDevice getPhysicalDevice() const;
+    vk::Device getDevice() const;
+
+    int getGraphicsQueueFamilyIndex() const;
+    int getComputeQueueFamilyIndex() const;
+    int getTransferQueueFamilyIndex() const;
+    int findPresentQueueFamilyIndex(vk::SurfaceKHR const& surface) const;
+
 protected:
     VKDevice() = default;
-    VKDevice(vk::PhysicalDevice const& physical_device, vk::QueueFlags required_queues);
+    VKDevice(vk::PhysicalDevice const& physical_device, std::vector<const char*> const& extensions, vk::QueueFlags required_queues);
 
 private:
-    void init(vk::QueueFlags required_queues);
-
-    void printDeviceInfo();
+    void init(std::vector<const char*> const& extensions, vk::QueueFlags required_queues);
 
     // Vulkan handle of current device
     vk::UniqueDevice m_device;

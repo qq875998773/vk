@@ -1,7 +1,7 @@
 #include "application.hpp"
 
-const int WIDTH = 1280;
-const int HEIGHT = 720;
+const uint32_t WIDTH = 1280;
+const uint32_t HEIGHT = 720;
 
 Application::Application(int argc, char* argv[])
     : m_window(nullptr, glfwDestroyWindow)  // Provide a destroy function for unique_ptr
@@ -18,15 +18,15 @@ void Application::run()
 
 void Application::initVulkan()
 {
-    m_vk = VKRender::create();
+    m_vk = VKRender::create(WIDTH, HEIGHT);
 
     m_vk->init(getGLFWExtensions(),
         // use glfw to create Vulkan surface
-        [this](VkInstance instance) -> VkSurfaceKHR
+        [this](vk::Instance instance) -> vk::UniqueSurfaceKHR
         {
             VkSurfaceKHR surface;
             glfwCreateWindowSurface(instance, m_window.get(), nullptr, &surface);
-            return surface;
+            return vk::UniqueSurfaceKHR(surface, instance);
         }
     );
 }

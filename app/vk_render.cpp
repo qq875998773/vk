@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 namespace defaults
 {
@@ -9,23 +10,34 @@ namespace defaults
     const std::vector<const char*> validation_layers = { "VK_LAYER_KHRONOS_validation" };
 }
 
-void VKRender::init(std::vector<const char*> const& extensions, std::function<VkSurfaceKHR(VkInstance)> create_surface_func)
+VKRender::VKRender(uint32_t width, uint32_t height)
+    : m_width(width), m_height(height)
+{
+}
+
+void VKRender::init(std::vector<const char*> const& extensions, std::function<vk::UniqueSurfaceKHR(vk::Instance)> create_surface_func)
 {
     initInstance(extensions);
-    initDevice();
 
-    if (create_surface_func)
+    initDevice(create_surface_func != nullptr);
+
+    if (create_surface_func != nullptr)
     {
+        // Create surface and present queue
         m_surface = create_surface_func(*m_instance);
+        if ((m_present_queue_family_index = m_device->findPresentQueueFamilyIndex(m_surface.get())) < 0)
+        {
+            throw std::runtime_error("Can not find a graphics and present queue");
+        }
+        m_present_queue = m_device->getDevice().getQueue(m_present_queue_family_index, 0);
+
+        createSwapchain();
     }
 
-    //createLogicalDevice();      // 创建逻辑设备
-    //createSwapChain();          // 交换链
     //createImageViews();         // 创建图像视图
     //createRenderPass();         // 渲染通道
     //createDescriptorSetLayout();// 创建描述符设置布局
     //createGraphicsPipeline();   // 图形管线
-    //createCommandPool();        // 创建令缓冲区
     //createDepthResources();     // 创建深度图像
     //createFramebuffers();       // ֡帧缓冲区
     //createTextureImage();       // 创建加载纹理图片 stb库
@@ -50,33 +62,6 @@ void VKRender::init(std::vector<const char*> const& extensions, std::function<Vk
 
 void VKRender::destroy()
 {
-    //vkDestroySampler(device, textureSampler, nullptr);// 销毁纹理采样器
-    //vkDestroyImageView(device, textureImageView, nullptr);// 销毁纹理图像视图
-
-    //vkDestroyImage(device, textureImage, nullptr);// 清除贴图图像
-    //vkFreeMemory(device, textureImageMemory, nullptr);// 清除贴图图像记录
-
-    //vkDestroyDescriptorPool(device, descriptorPool, nullptr); // 销毁描述对象池
-
-    //vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-    //vkDestroyBuffer(device, uniformBuffer, nullptr);
-    //vkFreeMemory(device, uniformBufferMemory, nullptr);
-
-    //vkDestroyBuffer(device, indexBuffer, nullptr); // 清除顶点索引缓冲区
-    //vkFreeMemory(device, indexBufferMemory, nullptr);// 清除顶点索引缓冲区记录
-
-    //vkDestroyBuffer(device, vertexBuffer, nullptr); // 清除顶点缓冲区
-    //vkFreeMemory(device, vertexBufferMemory, nullptr);// 清除顶点缓冲区记录
-
-    //vkDestroySemaphore(device, renderFinishedSemaphore, nullptr); // 清除渲染信号
-    //vkDestroySemaphore(device, imageAvailableSemaphore, nullptr); // 清除图像信号
-
-    //vkDestroyCommandPool(device, commandPool, nullptr);// 销毁命令缓冲区
-
-    //vkDestroyDevice(device, nullptr); // 清除逻辑设备资源
-    //DestroyDebugReportCallbackEXT(instance, callback, nullptr);
-    //vkDestroySurfaceKHR(instance, surface, nullptr); // GLFW没有提供专用的函数销毁surface,可以简单的通过Vulkan原始的API
-    //vkDestroyInstance(instance, nullptr); // 确保surface的清理是在instance销毁之前完成
 }
 
 void VKRender::waitIdle()
@@ -126,7 +111,7 @@ void VKRender::initInstance(std::vector<const char*> const& extensions)
     }
 }
 
-void VKRender::initDevice()
+void VKRender::initDevice(bool swapchain_required)
 {
     auto const& physical_devices = m_instance->enumeratePhysicalDevices();
     if (physical_devices.size() == 0)
@@ -134,9 +119,74 @@ void VKRender::initDevice()
         throw std::runtime_error("Failed to find physical device!");
     }
 
-    m_device = VKDevice::create(physical_devices[0]);
+    std::vector<const char*> exts;
+    if (swapchain_required)
+    {
+        exts.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    }
+    m_device = VKDevice::create(physical_devices[0], exts);
 
-    printDeviceInfo();
+    printPhysicalDeviceInfo();
+}
+
+void VKRender::createSwapchain()
+{
+    auto const& physical_device = m_device->getPhysicalDevice();
+
+    auto const& capabilities = physical_device.getSurfaceCapabilitiesKHR(m_surface.get());
+    auto const& formats = physical_device.getSurfaceFormatsKHR(m_surface.get());
+    auto const& present_modes = physical_device.getSurfacePresentModesKHR(m_surface.get());
+    assert(!formats.empty() && !present_modes.empty());
+
+    auto format = formats[0];
+    for (auto const& f : formats)
+    {
+        if (f.format == vk::Format::eB8G8R8A8Unorm && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+        {
+            format = f;
+            break;
+        }
+    }
+
+    auto present_mode = vk::PresentModeKHR::eFifo;
+
+    auto extent = vk::Extent2D(
+        std::clamp(m_width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+        std::clamp(m_height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
+    );
+
+    uint32_t image_count = std::min(capabilities.minImageCount + 1, capabilities.maxImageCount);
+
+    auto create_info = vk::SwapchainCreateInfoKHR(
+        vk::SwapchainCreateFlagsKHR(),
+        m_surface.get(),
+        image_count,
+        format.format, format.colorSpace,
+        extent,
+        1,
+        vk::ImageUsageFlagBits::eColorAttachment,
+        vk::SharingMode::eExclusive,
+        0, nullptr,
+        vk::SurfaceTransformFlagBitsKHR::eIdentity,
+        vk::CompositeAlphaFlagBitsKHR::eOpaque,
+        present_mode,
+        true,
+        nullptr
+    );
+
+    // If present and graphics queues are not the same one, set image sharing mode to concurrent
+    auto graphics_queue_family_index = m_device->getGraphicsQueueFamilyIndex();
+    if (m_present_queue_family_index != graphics_queue_family_index)
+    {
+        uint32_t queue_family_indices[] = { (uint32_t)graphics_queue_family_index, (uint32_t)m_present_queue_family_index };
+        create_info.imageSharingMode = vk::SharingMode::eConcurrent;
+        create_info.queueFamilyIndexCount = 2;
+        create_info.pQueueFamilyIndices = queue_family_indices;
+    }
+
+    m_swapchain = m_device->getDevice().createSwapchainKHRUnique(create_info);
+
+    m_swapchain_images = m_device->getDevice().getSwapchainImagesKHR(m_swapchain.get());
 }
 
 bool VKRender::checkLayers(std::vector<char const*> const& layers, std::vector<vk::LayerProperties> const& properties)
@@ -223,7 +273,7 @@ void VKRender::setupDebugCallback()
     }
 }
 
-void VKRender::printDeviceInfo()
+void VKRender::printPhysicalDeviceInfo()
 {
     if (!m_instance.get())
     {
@@ -252,11 +302,12 @@ namespace
 {
     struct VKRenderConcrete : public VKRender
     {
-        VKRenderConcrete() = default;
+        VKRenderConcrete(uint32_t width, uint32_t height)
+            : VKRender(width, height) {}
     };
 }
 
-std::unique_ptr<VKRender> VKRender::create()
+VKRender::UPtr VKRender::create(uint32_t width, uint32_t height)
 {
-    return std::make_unique<VKRenderConcrete>();
+    return std::make_unique<VKRenderConcrete>(width, height);
 }

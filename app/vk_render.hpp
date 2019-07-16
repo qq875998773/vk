@@ -6,39 +6,30 @@
 
 #include <vulkan/vulkan.hpp>
 
-// 如果仅仅是为了测试交换链的有效性是远远不够的,因为它还不能很好的与窗体surface兼容
-// 创建交换链同样也需要很多设置,所以我们需要了解一些有关设置的细节
-// 交换链结构体详细信息
-struct SwapChainSupportDetails
-{
-    vk::SurfaceCapabilitiesKHR capabilities;
-    std::vector<vk::SurfaceFormatKHR> formats;
-    std::vector<vk::PresentModeKHR> presentModes;
-};
-
 class VKRender
 {
 public:
-    void init(std::vector<const char*> const& extensions = {}, std::function<VkSurfaceKHR(VkInstance)> create_surface_func = nullptr);
+    void init(std::vector<const char*> const& extensions = {}, std::function<vk::UniqueSurfaceKHR(vk::Instance)> create_surface_func = nullptr);
     void destroy();
 
     void waitIdle();
 
     using UPtr = std::unique_ptr<VKRender>;
-    static UPtr create();
+    static UPtr create(uint32_t width, uint32_t height);
 
 protected:
-    VKRender() = default;
+    VKRender(uint32_t width, uint32_t height);
 
 private:
     void initInstance(std::vector<const char*> const& extensions);
-    void initDevice();
+    void initDevice(bool swapchain_required);
+    void createSwapchain();
 
     bool checkLayers(std::vector<char const*> const& layers, std::vector<vk::LayerProperties> const& properties);
 
     void setupDebugCallback();
 
-    void printDeviceInfo();
+    void printPhysicalDeviceInfo();
 
     // Vulkan instance
     vk::UniqueInstance m_instance;
@@ -46,13 +37,19 @@ private:
     // logical device wrapper
     VKDevice::UPtr m_device;
 
+    vk::UniqueSurfaceKHR m_surface;
+    int m_present_queue_family_index = -1;
+    vk::Queue m_present_queue;
+
+    vk::UniqueSwapchainKHR m_swapchain;
+
+    std::vector<vk::Image> m_swapchain_images;
+
     vk::UniqueDebugReportCallbackEXT m_debug_callback;
 
-    vk::SurfaceKHR m_surface;
+    uint32_t m_width = 640;
+    uint32_t m_height = 480;
 
-
-    vk::Queue m_graphicsQueue;      // 绘图队列句柄
-    vk::Queue m_presentQueue;       // 演示队列句柄
 
     vk::SwapchainKHR m_swapChain;               // 交换链对象
     std::vector<vk::Image> m_swapChainImages;   // 交换链图像, 图像被交换链创建,也会在交换链销毁的同时自动清理,所以不需要添加清理代码
