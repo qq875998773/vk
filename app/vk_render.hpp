@@ -42,8 +42,8 @@ private:
     vk::Queue m_present_queue;
 
     vk::UniqueSwapchainKHR m_swapchain;
-
     std::vector<vk::Image> m_swapchain_images;
+    std::vector<vk::UniqueImageView> m_swapchain_image_views;
 
     vk::UniqueDebugReportCallbackEXT m_debug_callback;
 

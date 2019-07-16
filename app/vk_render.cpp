@@ -184,9 +184,28 @@ void VKRender::createSwapchain()
         create_info.pQueueFamilyIndices = queue_family_indices;
     }
 
-    m_swapchain = m_device->getDevice().createSwapchainKHRUnique(create_info);
+    auto const& device = m_device->getDevice();
 
-    m_swapchain_images = m_device->getDevice().getSwapchainImagesKHR(m_swapchain.get());
+    m_swapchain = device.createSwapchainKHRUnique(create_info);
+
+    m_swapchain_images = device.getSwapchainImagesKHR(m_swapchain.get());
+
+    m_swapchain_image_views.reserve(m_swapchain_images.size());
+    for (auto const& image : m_swapchain_images)
+    {
+        vk::ComponentMapping component_mapping;
+        vk::ImageSubresourceRange sub_resource_range(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
+        vk::ImageViewCreateInfo image_view_create_info(
+            vk::ImageViewCreateFlags(),
+            image,
+            vk::ImageViewType::e2D,
+            format.format,
+            component_mapping,
+            sub_resource_range
+        );
+
+        m_swapchain_image_views.push_back(device.createImageViewUnique(image_view_create_info));
+    }
 }
 
 bool VKRender::checkLayers(std::vector<char const*> const& layers, std::vector<vk::LayerProperties> const& properties)
