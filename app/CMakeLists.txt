@@ -5,16 +5,21 @@ set(APP_SRC
     "application.hpp"
     "vk_render.cpp"
     "vk_render.hpp"
+    "vk_device.cpp"
+    "vk_device.hpp"
 )
 
 add_executable (vk ${APP_SRC})
 
 target_include_directories(vk PUBLIC "include")
-target_link_libraries(vk Vulkan::Vulkan glfw3::glfw3)
+target_link_libraries(vk PRIVATE Vulkan::Vulkan glfw)
+
 add_dependencies(vk Shaders Resources)
 
-add_custom_command(TARGET vk POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${GLFW3_DLL}
-        $<TARGET_FILE_DIR:vk>
-)
+if (WIN32)
+    add_custom_command(TARGET vk POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${GLFW3_DLL}
+            $<TARGET_FILE_DIR:vk>
+    )
+endif ()

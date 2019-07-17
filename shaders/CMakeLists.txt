@@ -1,10 +1,12 @@
-﻿if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "AMD64")
-    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin/glslangValidator.exe")
-else()
-    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin32/glslangValidator.exe")
-endif()
-
-message(${GLSL_VALIDATOR})
+﻿if (WIN32)
+    if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "AMD64")
+        set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin/glslangValidator.exe")
+    else()
+        set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin32/glslangValidator.exe")
+    endif()
+elseif (UNIX AND NOT APPLE)
+    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/bin/glslangValidator")
+endif ()
 
 file(GLOB_RECURSE SHADER_SRC
     "*.frag"

@@ -3,13 +3,21 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
+set(CMAKE_CXX_STANDARD 17)
+
 project ("VK")
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-find_package(Vulkan REQUIRED)
+include(FindPackageHandleStandardArgs)
 
-find_package(GLFW3 REQUIRED)
+if (WIN32)
+    find_package(GLFW3 REQUIRED)
+elseif (UNIX AND NOT APPLE)
+    find_package(glfw3 REQUIRED)
+endif ()
+
+find_package(Vulkan REQUIRED)
 
 # Include sub-projects.
 add_subdirectory("shaders")

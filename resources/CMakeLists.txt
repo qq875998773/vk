@@ -6,16 +6,16 @@
 foreach(RESOURCE_DIR ${RESOURCE_DIRS})
     set(SRC ${CMAKE_CURRENT_SOURCE_DIR}/${RESOURCE_DIR})
     set(DST ${PROJECT_BINARY_DIR}/resources/${RESOURCE_DIR})
+    set(DIR ${DST})
     if (WIN32)
         FILE(TO_NATIVE_PATH ${SRC} SRC_WIN)
         FILE(TO_NATIVE_PATH ${DST} DST_WIN)
-        set(DIR ${DST})
         add_custom_command(
             OUTPUT ${DIR}
             COMMAND IF NOT EXIST ${DST_WIN} mklink /J ${DST_WIN} ${SRC_WIN}
             DEPENDS ${SRC}
         )
-    elseif (UNIX)
+    elseif (UNIX AND NOT APPLE)
         add_custom_command(
             OUTPUT ${DIR}
             COMMAND ${CMAKE_COMMAND} -E create_symlink ${SRC} ${DST}

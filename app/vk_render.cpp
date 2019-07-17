@@ -2,41 +2,59 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
-bool enableValidationLayers = true;
+namespace defaults
+{
+    const bool enable_validation_layers = true;
+    const std::vector<const char*> validation_layers = { "VK_LAYER_KHRONOS_validation" };
+}
 
-const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+VKRender::VKRender(uint32_t width, uint32_t height)
+    : m_width(width), m_height(height)
+{
+}
 
-void VKRender::init(std::vector<const char*> const& extensions)
+void VKRender::init(std::vector<const char*> const& extensions, std::function<vk::UniqueSurfaceKHR(vk::Instance)> create_surface_func)
 {
     initInstance(extensions);
-    initDevice();
 
-    //createSurface();            // ´´½¨´°ÌåºÍvulkanÊµÀıÁ¬½Ó
-    //createLogicalDevice();      // ´´½¨Âß¼­Éè±¸
-    //createSwapChain();          // ½»»»Á´
-    //createImageViews();         // ´´½¨Í¼ÏñÊÓÍ¼
-    //createRenderPass();         // äÖÈ¾Í¨µÀ
-    //createDescriptorSetLayout();// ´´½¨ÃèÊö·ûÉèÖÃ²¼¾Ö
-    //createGraphicsPipeline();   // Í¼ĞÎ¹ÜÏß
-    //createCommandPool();        // ´´½¨Áî»º³åÇø
-    //createDepthResources();     // ´´½¨Éî¶ÈÍ¼Ïñ
-    //createFramebuffers();       // Ö¡»º³åÇø
-    //createTextureImage();       // ´´½¨¼ÓÔØÎÆÀíÍ¼Æ¬ stb¿â
-    //createTextureImageView();   // ´´½¨Í¼ÏñÊÓÍ¼·ÃÎÊÎÆÀíÍ¼Ïñ
-    //createTextureSampler();     // ´´½¨ÅäÖÃ²ÉÑùÆ÷¶ÔÏó
-    ////loadModel();                // ¼ÓÔØÄ£ĞÍ tinyobjloader¿â
-    ////loadModel1();               // ²âÊÔÈı½ÇĞÎ
-    //loadModel2();               // »­Çò
-    //createVertexBuffer();       // ´´½¨¶¥µã»º³åÇø
-    //createIndexBuffer();        // ´´½¨¶¥µãË÷Òı»º³åÇø
-    //createUniformBuffer();      // ´´½¨È«¾Ö»º³åÇø
-    //createDescriptorPool();     // ´´½¨ÃèÊö·û¼¯ºÏ
-    //createDescriptorSet();      // ´´½¨·ÖÅäÃèÊö·û¼¯ºÏ
-    //createCommandBuffers();     // ´´½¨ÃüÁî»º³åÇø
-    //createSemaphores();         // ´´½¨ĞÅºÅ¶ÔÏó
+    initDevice(create_surface_func != nullptr);
 
-    if (enableValidationLayers)
+    if (create_surface_func != nullptr)
+    {
+        // Create surface and present queue
+        m_surface = create_surface_func(*m_instance);
+        if ((m_present_queue_family_index = m_device->findPresentQueueFamilyIndex(m_surface.get())) < 0)
+        {
+            throw std::runtime_error("Can not find a graphics and present queue");
+        }
+        m_present_queue = m_device->getDevice().getQueue(m_present_queue_family_index, 0);
+
+        createSwapchain();
+    }
+
+    //createImageViews();         // åˆ›å»ºå›¾åƒè§†å›¾
+    //createRenderPass();         // æ¸²æŸ“é€šé“
+    //createDescriptorSetLayout();// åˆ›å»ºæè¿°ç¬¦è®¾ç½®å¸ƒå±€
+    //createGraphicsPipeline();   // å›¾å½¢ç®¡çº¿
+    //createDepthResources();     // åˆ›å»ºæ·±åº¦å›¾åƒ
+    //createFramebuffers();       // Ö¡å¸§ç¼“å†²åŒº
+    //createTextureImage();       // åˆ›å»ºåŠ è½½çº¹ç†å›¾ç‰‡ stbåº“
+    //createTextureImageView();   // åˆ›å»ºå›¾åƒè§†å›¾è®¿é—®çº¹ç†å›¾åƒ
+    //createTextureSampler();     // åˆ›å»ºé…ç½®é‡‡æ ·å™¨å¯¹è±¡
+    ////loadModel();                // åŠ è½½æ¨¡å‹ tinyobjloaderåº“
+    ////loadModel1();               // æµ‹è¯•ä¸‰è§’å½¢
+    //loadModel2();               // ç”»çƒ
+    //createVertexBuffer();       // åˆ›å»ºé¡¶ç‚¹ç¼“å†²åŒº
+    //createIndexBuffer();        // åˆ›å»ºé¡¶ç‚¹ç´¢å¼•ç¼“å†²åŒº
+    //createUniformBuffer();      // åˆ›å»ºå…¨å±€ç¼“å†²åŒº
+    //createDescriptorPool();     // åˆ›å»ºæè¿°ç¬¦é›†åˆ
+    //createDescriptorSet();      // åˆ›å»ºåˆ†é…æè¿°ç¬¦é›†åˆ
+    //createCommandBuffers();     // åˆ›å»ºå‘½ä»¤ç¼“å†²åŒº
+    //createSemaphores();         // åˆ›å»ºä¿¡å·å¯¹è±¡
+
+    if (defaults::enable_validation_layers)
     {
         setupDebugCallback();
     }
@@ -44,33 +62,6 @@ void VKRender::init(std::vector<const char*> const& extensions)
 
 void VKRender::destroy()
 {
-    //vkDestroySampler(device, textureSampler, nullptr);// Ïú»ÙÎÆÀí²ÉÑùÆ÷
-    //vkDestroyImageView(device, textureImageView, nullptr);// Ïú»ÙÎÆÀíÍ¼ÏñÊÓÍ¼
-
-    //vkDestroyImage(device, textureImage, nullptr);// Çå³ıÌùÍ¼Í¼Ïñ
-    //vkFreeMemory(device, textureImageMemory, nullptr);// Çå³ıÌùÍ¼Í¼Ïñ¼ÇÂ¼
-
-    //vkDestroyDescriptorPool(device, descriptorPool, nullptr); // Ïú»ÙÃèÊö¶ÔÏó³Ø
-
-    //vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-    //vkDestroyBuffer(device, uniformBuffer, nullptr);
-    //vkFreeMemory(device, uniformBufferMemory, nullptr);
-
-    //vkDestroyBuffer(device, indexBuffer, nullptr); // Çå³ı¶¥µãË÷Òı»º³åÇø
-    //vkFreeMemory(device, indexBufferMemory, nullptr);// Çå³ı¶¥µãË÷Òı»º³åÇø¼ÇÂ¼
-
-    //vkDestroyBuffer(device, vertexBuffer, nullptr); // Çå³ı¶¥µã»º³åÇø
-    //vkFreeMemory(device, vertexBufferMemory, nullptr);// Çå³ı¶¥µã»º³åÇø¼ÇÂ¼
-
-    //vkDestroySemaphore(device, renderFinishedSemaphore, nullptr); // Çå³ıäÖÈ¾ĞÅºÅ
-    //vkDestroySemaphore(device, imageAvailableSemaphore, nullptr); // Çå³ıÍ¼ÏñĞÅºÅ
-
-    //vkDestroyCommandPool(device, commandPool, nullptr);// Ïú»ÙÃüÁî»º³åÇø
-
-    //vkDestroyDevice(device, nullptr); // Çå³ıÂß¼­Éè±¸×ÊÔ´
-    //DestroyDebugReportCallbackEXT(instance, callback, nullptr);
-    //vkDestroySurfaceKHR(instance, surface, nullptr); // GLFWÃ»ÓĞÌá¹©×¨ÓÃµÄº¯ÊıÏú»Ùsurface,¿ÉÒÔ¼òµ¥µÄÍ¨¹ıVulkanÔ­Ê¼µÄAPI
-    //vkDestroyInstance(instance, nullptr); // È·±£surfaceµÄÇåÀíÊÇÔÚinstanceÏú»ÙÖ®Ç°Íê³É
 }
 
 void VKRender::waitIdle()
@@ -82,13 +73,13 @@ void VKRender::initInstance(std::vector<const char*> const& extensions)
 {
     std::vector<const char*> layers;
     std::vector<const char*> exts = extensions;
-    if (enableValidationLayers)
+    if (defaults::enable_validation_layers)
     {
-        auto instanceLayerProperties = vk::enumerateInstanceLayerProperties();
-        if (checkLayers(validationLayers, instanceLayerProperties))
+        auto instance_layer_properties = vk::enumerateInstanceLayerProperties();
+        if (checkLayers(defaults::validation_layers, instance_layer_properties))
         {
             exts.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-            layers = validationLayers;
+            layers = defaults::validation_layers;
         }
         else
         {
@@ -96,7 +87,7 @@ void VKRender::initInstance(std::vector<const char*> const& extensions)
         }
     }
 
-    vk::ApplicationInfo appInfo(
+    vk::ApplicationInfo app_info(
         "VK Demo",
         VK_MAKE_VERSION(1, 0, 0),
         "No Engine",
@@ -104,36 +95,116 @@ void VKRender::initInstance(std::vector<const char*> const& extensions)
         VK_API_VERSION_1_0
     );
 
-    vk::InstanceCreateInfo createInfo(
+    vk::InstanceCreateInfo create_info(
         vk::InstanceCreateFlags(),
-        &appInfo,
+        &app_info,
         layers.size(),
         layers.data(),
         exts.size(),
         exts.data()
     );
 
-    m_instance = vk::createInstanceUnique(createInfo);
+    m_instance = vk::createInstanceUnique(create_info);
     if (!m_instance.get())
     {
         throw std::runtime_error("Failed to create instance!");
     }
 }
 
-void VKRender::initDevice()
+void VKRender::initDevice(bool swapchain_required)
 {
-    auto physical_devices = m_instance->enumeratePhysicalDevices();
+    auto const& physical_devices = m_instance->enumeratePhysicalDevices();
     if (physical_devices.size() == 0)
     {
-        throw std::runtime_error("Failed to find GPU with Vulkan support!");
+        throw std::runtime_error("Failed to find physical device!");
     }
 
-    std::cout << "Found available device(s): " << std::endl;
-    for (auto i = 0; i < physical_devices.size(); ++i)
+    std::vector<const char*> exts;
+    if (swapchain_required)
     {
-        auto properties = physical_devices[i].getProperties();
-        std::cout << i << ": " << properties.deviceName << std::endl;
-        auto queue_family_properties = physical_devices[i].getQueueFamilyProperties();
+        exts.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    }
+    m_device = VKDevice::create(physical_devices[0], exts);
+
+    printPhysicalDeviceInfo();
+}
+
+void VKRender::createSwapchain()
+{
+    auto const& physical_device = m_device->getPhysicalDevice();
+
+    auto const& capabilities = physical_device.getSurfaceCapabilitiesKHR(m_surface.get());
+    auto const& formats = physical_device.getSurfaceFormatsKHR(m_surface.get());
+    auto const& present_modes = physical_device.getSurfacePresentModesKHR(m_surface.get());
+    assert(!formats.empty() && !present_modes.empty());
+
+    auto format = formats[0];
+    for (auto const& f : formats)
+    {
+        if (f.format == vk::Format::eB8G8R8A8Unorm && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+        {
+            format = f;
+            break;
+        }
+    }
+
+    auto present_mode = vk::PresentModeKHR::eFifo;
+
+    auto extent = vk::Extent2D(
+        std::clamp(m_width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
+        std::clamp(m_height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
+    );
+
+    uint32_t image_count = std::min(capabilities.minImageCount + 1, capabilities.maxImageCount);
+
+    auto create_info = vk::SwapchainCreateInfoKHR(
+        vk::SwapchainCreateFlagsKHR(),
+        m_surface.get(),
+        image_count,
+        format.format, format.colorSpace,
+        extent,
+        1,
+        vk::ImageUsageFlagBits::eColorAttachment,
+        vk::SharingMode::eExclusive,
+        0, nullptr,
+        vk::SurfaceTransformFlagBitsKHR::eIdentity,
+        vk::CompositeAlphaFlagBitsKHR::eOpaque,
+        present_mode,
+        true,
+        nullptr
+    );
+
+    // If present and graphics queues are not the same one, set image sharing mode to concurrent
+    auto graphics_queue_family_index = m_device->getGraphicsQueueFamilyIndex();
+    if (m_present_queue_family_index != graphics_queue_family_index)
+    {
+        uint32_t queue_family_indices[] = { (uint32_t)graphics_queue_family_index, (uint32_t)m_present_queue_family_index };
+        create_info.imageSharingMode = vk::SharingMode::eConcurrent;
+        create_info.queueFamilyIndexCount = 2;
+        create_info.pQueueFamilyIndices = queue_family_indices;
+    }
+
+    auto const& device = m_device->getDevice();
+
+    m_swapchain = device.createSwapchainKHRUnique(create_info);
+
+    m_swapchain_images = device.getSwapchainImagesKHR(m_swapchain.get());
+
+    m_swapchain_image_views.reserve(m_swapchain_images.size());
+    for (auto const& image : m_swapchain_images)
+    {
+        vk::ComponentMapping component_mapping;
+        vk::ImageSubresourceRange sub_resource_range(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
+        vk::ImageViewCreateInfo image_view_create_info(
+            vk::ImageViewCreateFlags(),
+            image,
+            vk::ImageViewType::e2D,
+            format.format,
+            component_mapping,
+            sub_resource_range
+        );
+
+        m_swapchain_image_views.push_back(device.createImageViewUnique(image_view_create_info));
     }
 }
 
@@ -196,10 +267,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkDebugFunc(VkDebugReportFlagsEXT flags, VkDebugR
 
 void VKRender::setupDebugCallback()
 {
-    if (!enableValidationLayers) return;
+    if (!defaults::enable_validation_layers) return;
 
     // vkCreateDebugReportCallbackEXT() and vkDestroyDebugReportCallbackEXT() are not part of Vulkan core
-    // The function address need to be dynamically loaded
+    // The extension function address need to be dynamically loaded
     pfnVkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(m_instance->getProcAddr("vkCreateDebugReportCallbackEXT"));
     if (!pfnVkCreateDebugReportCallbackEXT)
     {
@@ -219,4 +290,43 @@ void VKRender::setupDebugCallback()
     {
         throw std::runtime_error("Failed to set up debug callback!");
     }
+}
+
+void VKRender::printPhysicalDeviceInfo()
+{
+    if (!m_instance.get())
+    {
+        return;
+    }
+
+    auto const& physical_devices = m_instance->enumeratePhysicalDevices();
+
+    std::cout << "Found available device(s): " << std::endl;
+    for (auto i = 0; i < physical_devices.size(); ++i)
+    {
+        auto const& properties = physical_devices[i].getProperties();
+        std::cout << i << ": " << properties.deviceName << std::endl;
+
+        auto queue_family_properties = physical_devices[i].getQueueFamilyProperties();
+        for (auto j = 0; j < queue_family_properties.size(); ++j)
+        {
+            auto const& queue_family = queue_family_properties[j];
+            std::cout << "    Queue family #" << j << "  count: " << queue_family.queueCount << "  " << vk::to_string(queue_family.queueFlags) << std::endl;
+        }
+    }
+}
+
+
+namespace
+{
+    struct VKRenderConcrete : public VKRender
+    {
+        VKRenderConcrete(uint32_t width, uint32_t height)
+            : VKRender(width, height) {}
+    };
+}
+
+VKRender::UPtr VKRender::create(uint32_t width, uint32_t height)
+{
+    return std::make_unique<VKRenderConcrete>(width, height);
 }

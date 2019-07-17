@@ -22,6 +22,9 @@ CMakeScripts
 cmake_install.cmake
 cmake_uninstall.cmake
 
+# Visual Studio Code
+.vscode/
+
 CMakeSettings.json
 CppProperties.json
 
